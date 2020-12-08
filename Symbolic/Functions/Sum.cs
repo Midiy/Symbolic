@@ -30,5 +30,7 @@
         public override bool Equals(Function? other) => other is Sum s && s.Left == Left && s.Right == Right;
 
         public override string ToString(string? inner) => $"({Left.ToString(inner)}) + ({Right.ToString(inner)})";
+
+        public override string ToString() => $"({Left}) + ({Right})";
     }
 }

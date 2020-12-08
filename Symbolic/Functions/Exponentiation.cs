@@ -11,7 +11,7 @@ namespace Symbolic.Functions
 
         public Exponentiation(Function @base, Function exponent) => (Base, Exponent) = (@base, exponent);
 
-        public override Function Diff() => this * (Exponent.Diff() * new Ln().ApplyTo(Base) + Exponent * Base.Diff() / Base);
+        public override Function Diff() => this * (Exponent.Diff() * new Ln(Variable).ApplyTo(Base) + Exponent * Base.Diff() / Base);
 
         public override double GetValue(double variableValue) => Math.Pow(Base.GetValue(variableValue), Exponent.GetValue(variableValue));
 
@@ -20,5 +20,7 @@ namespace Symbolic.Functions
         public override bool Equals(Function? other) => other is Exponentiation e && e.Base.Equals(Base) && e.Exponent.Equals(Exponent);
 
         public override string ToString(string? inner) => $"({Base.ToString(inner)})^({Exponent.ToString(inner)})";
+
+        public override string ToString() => $"({Base})^({Exponent})";
     }
 }

@@ -52,6 +52,8 @@ namespace Symbolic.Functions
 
         public override bool Equals(Function? other) => (other as Constant)?.Value == Value;
 
+        public override string ToString(string? inner) => ToString();
+
         public override string ToString() => Value.ToString();
 
         #region Operators

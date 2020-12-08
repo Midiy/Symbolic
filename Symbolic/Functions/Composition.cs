@@ -16,5 +16,7 @@
         public override Function ApplyTo(Function inner) => Outer.ApplyTo(Inner.ApplyTo(inner));
 
         public override string ToString(string? inner) => Outer.ToString(Inner.ToString(inner));
+
+        public override string ToString() => Outer.ToString(Inner.ToString());
     }
 }

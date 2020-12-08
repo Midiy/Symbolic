@@ -6,6 +6,10 @@ namespace Symbolic.Functions
     {
         public Symbol? Variable { get; init; }
 
+        protected Function() { }
+
+        public Function(Symbol? variable) => Variable = variable;
+
         public abstract double GetValue(double variableValue);
 
         public abstract Function Diff();
@@ -22,7 +26,7 @@ namespace Symbolic.Functions
 
         public virtual Function ApplyTo(Function inner) => inner is Constant c ? this.GetValue(c) : new Composition(this, inner);
 
-        public virtual Function Raise(Function other) => other is Constant c ? new Standart.Power(c).ApplyTo(other) : new Exponentiation(this, other);
+        public virtual Function Raise(Function other) => other is Constant c ? new Standart.Power(null, c).ApplyTo(this) : new Exponentiation(this, other);
         
         public abstract bool Equals(Function? other);
 

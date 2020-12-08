@@ -30,5 +30,7 @@
         public override bool Equals(Function? other) => other is Product p && (p.Left == Left && p.Right == Right || p.Left == Right && p.Right == p.Left);
 
         public override string ToString(string? inner) => $"({Left.ToString(inner)}) * ({Right.ToString(inner)})";
+
+        public override string ToString() => $"({Left}) * ({Right})";
     }
 }

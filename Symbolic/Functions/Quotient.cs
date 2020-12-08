@@ -24,5 +24,7 @@
         public override bool Equals(Function? other) => other is Quotient q && q.Left == Left && q.Right == Right;
 
         public override string ToString(string? inner) => $"({Left.ToString(inner)}) / ({Right.ToString(inner)})";
+
+        public override string ToString() => $"({Left}) / ({Right})";
     }
 }
