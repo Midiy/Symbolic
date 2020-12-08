@@ -45,7 +45,7 @@ namespace Symbolic.Functions
                 if (c == 0) { throw new System.DivideByZeroException(); }
                 else { return Value / c.Value; }
             }
-            else { return base.Add(other); }
+            else { return base.Divide(other); }
         }
 
         public override Function ApplyTo(Function _) => this;
