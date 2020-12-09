@@ -16,13 +16,30 @@ namespace Symbolic.Functions
 
         public virtual Function Negate() => new Negation(this);
 
-        public virtual Function Add(Function other) => new Sum(this, other);
+        public virtual Function Add(Function other) => other == 0 ? this : new Sum(this, other);
 
-        public virtual Function Subtract(Function other) => this == other ? 0 : this.Add(other.Negate());
+        public virtual Function Subtract(Function other)
+        {
+            if (this == other) { return 0; }
+            else if (other == 0) { return this; }
+            else { return this.Add(other.Negate()); }
+        }
 
-        public virtual Function Multiply(Function other) => new Product(this, other);
+        public virtual Function Multiply(Function other)
+        {
+            if (other == -1) { return this.Negate(); }
+            else if (other == 0) { return 0; }
+            else if (other == 1) { return this; }
+            else { return new Product(this, other); }
+        }
 
-        public virtual Function Divide(Function other) => this == other ? 1 : new Quotient(this, other);
+        public virtual Function Divide(Function other)
+        {
+            if (this == other) { return 1; }
+            else if (other == -1) { return this.Negate(); }
+            else if (other == 1) { return this; }
+            else { return new Quotient(this, other); }
+        }
 
         public virtual Function ApplyTo(Function inner) => inner switch
                                                            {
@@ -31,7 +48,17 @@ namespace Symbolic.Functions
                                                                _ => new Composition(this, inner)
                                                            };
 
-        public virtual Function Raise(Function other) => other is Constant c ? new Standart.Power(null, c).ApplyTo(this) : new Exponentiation(this, other);
+        public virtual Function Raise(Function other)
+        {
+            if (other == 0)
+            {
+                if (this == 0) { throw new ArithmeticException(); }
+                else { return 1; }
+            }
+            else if (other == 1) { return this; }
+            else if (other is Constant c) { return new Standart.Power(Symbol.ANY, c).ApplyTo(this); }
+            else { return new Exponentiation(this, other); }
+        }
 
         public abstract Function WithVariable(Symbol newVariable);
         

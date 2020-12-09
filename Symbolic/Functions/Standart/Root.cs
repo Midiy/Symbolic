@@ -16,6 +16,6 @@ namespace Symbolic.Functions.Standart
 
         public override string ToString(string? inner) => $"({inner})^(1/({Degree}))";
 
-        protected override Function _diff(Symbol variable) => new Power(Variable, (Degree - 1) / Degree) / Degree;
+        protected override Function _diff(Symbol variable) => (Variable ^ ((Degree - 1) / Degree)) / Degree;
     }
 }

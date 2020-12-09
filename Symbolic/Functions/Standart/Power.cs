@@ -16,6 +16,6 @@ namespace Symbolic.Functions.Standart
 
         public override string ToString(string? inner) => $"({inner})^({Exponent})";
 
-        protected override Function _diff(Symbol variable) => Exponent * new Power(Variable!, Exponent - 1);
+        protected override Function _diff(Symbol variable) => Exponent * (Variable! ^ (Exponent - 1));
     }
 }
