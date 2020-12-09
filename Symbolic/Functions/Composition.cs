@@ -5,9 +5,7 @@
         public Function Outer { get; init; }
         public Function Inner { get; init; }
 
-        public Composition(Function outer, Function inner) => (Outer, Inner) = (outer, inner);
-
-        public override Function Diff() => Outer.Diff().ApplyTo(Inner) * Inner.Diff();
+        public Composition(Function outer, Function inner) : base(inner.Variable) => (Outer, Inner) = (outer, inner);
 
         public override bool Equals(Function? other) => other is Composition c && c.Outer.Equals(Outer) && c.Inner.Equals(Inner);
 
@@ -20,5 +18,7 @@
         public override string ToString(string? inner) => Outer.ToString(Inner.ToString(inner));
 
         public override string ToString() => Outer.ToString(Inner.ToString());
+
+        protected override Function _diff(Symbol variable) => Outer.Diff(Outer.Variable).ApplyTo(Inner) * Inner.Diff(variable);
     }
 }

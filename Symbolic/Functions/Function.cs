@@ -12,7 +12,7 @@ namespace Symbolic.Functions
 
         public abstract double GetValue(double variableValue);
 
-        public abstract Function Diff();
+        public virtual Function Diff(Symbol variable) => variable == Variable ? _diff(variable) : 0;
 
         public virtual Function Negate() => new Negation(this);
 
@@ -42,6 +42,8 @@ namespace Symbolic.Functions
         public virtual string ToString(string? inner) => $"Unknown function of {inner}";
 
         public override string ToString() => ToString(Variable?.ToString());
+
+        protected abstract Function _diff(Symbol variable);
 
         #region Operators
         public static bool operator ==(Function left, Function right) => left.Equals(right);

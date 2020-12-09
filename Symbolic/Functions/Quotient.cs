@@ -9,9 +9,10 @@
         {
             if (right is Constant c && c.Value == 0) { throw new System.DivideByZeroException(); }
             (Left, Right) = (left, right);
+            if (Left.Variable == Right.Variable) { Variable = Left.Variable; }
         }
 
-        public override Function Diff() => (Left.Diff() * Right - Left * Right.Diff()) / (Right ^ 2);
+        public override Function Diff(Symbol variable) => (Left.Diff(variable) * Right - Left * Right.Diff(variable)) / (Right ^ 2);
 
         public override double GetValue(double variableValue) => Left.GetValue(variableValue) / Right.GetValue(variableValue);
 
@@ -28,5 +29,7 @@
         public override string ToString(string? inner) => $"({Left.ToString(inner)}) / ({Right.ToString(inner)})";
 
         public override string ToString() => $"({Left}) / ({Right})";
+
+        protected override Function _diff(Symbol variable) => throw new System.NotImplementedException();
     }
 }

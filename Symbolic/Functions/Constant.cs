@@ -6,11 +6,11 @@ namespace Symbolic.Functions
     {
         public double Value { get; init; }
         
-        public Constant(double value) => Value = value;
+        public Constant(double value) : base(Symbol.ANY) => Value = value;
 
         public override double GetValue(double _) => Value;
 
-        public override Constant Diff() => 0;
+        public override Constant Diff(Symbol _) => 0;
 
         public override Function Negate() => -Value;
 
@@ -57,6 +57,8 @@ namespace Symbolic.Functions
         public override string ToString(string? inner) => ToString();
 
         public override string ToString() => Value.ToString();
+
+        protected override Function _diff(Symbol variable) => throw new NotImplementedException();
 
         #region Operators
         public static Constant operator -(Constant inner) => -inner.Value;

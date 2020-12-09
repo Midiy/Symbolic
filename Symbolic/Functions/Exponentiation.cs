@@ -9,9 +9,13 @@ namespace Symbolic.Functions
         public Function Base { get; init; }
         public Function Exponent { get; init; }
 
-        public Exponentiation(Function @base, Function exponent) => (Base, Exponent) = (@base, exponent);
+        public Exponentiation(Function @base, Function exponent)
+        {
+            (Base, Exponent) = (@base, exponent);
+            if (Base.Variable == Exponent.Variable) { Variable = Base.Variable; }
+        }
 
-        public override Function Diff() => this * (Exponent.Diff() * new Ln(Variable).ApplyTo(Base) + Exponent * Base.Diff() / Base);
+        public override Function Diff(Symbol variable) => this * (Exponent.Diff(variable) * new Ln(Variable).ApplyTo(Base) + Exponent * Base.Diff(variable) / Base);
 
         public override double GetValue(double variableValue) => Math.Pow(Base.GetValue(variableValue), Exponent.GetValue(variableValue));
 
@@ -24,5 +28,7 @@ namespace Symbolic.Functions
         public override string ToString(string? inner) => $"({Base.ToString(inner)})^({Exponent.ToString(inner)})";
 
         public override string ToString() => $"({Base})^({Exponent})";
+
+        protected override Function _diff(Symbol variable) => throw new NotImplementedException();
     }
 }

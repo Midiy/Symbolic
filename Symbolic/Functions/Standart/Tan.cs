@@ -6,8 +6,6 @@ namespace Symbolic.Functions.Standart
     {
         public Tan(Symbol variable) : base(variable) { }
 
-        public override Quotient Diff() => (Quotient)(1 / (new Cos(Variable!) ^ 2));
-
         public override double GetValue(double variableValue) => Math.Tan(variableValue);
 
         public override Tan WithVariable(Symbol newVariable) => new Tan(newVariable);
@@ -15,5 +13,7 @@ namespace Symbolic.Functions.Standart
         public override bool Equals(Function? other) => other is Tan && other.Variable! == Variable!;
 
         public override string ToString(string? inner) => $"tan({inner})";
+        
+        protected override Function _diff(Symbol variable) => 1 / (new Cos(Variable!) ^ 2);
     }
 }

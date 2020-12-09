@@ -6,8 +6,6 @@ namespace Symbolic.Functions.Standart
     {
         public Exp(Symbol variable) : base(variable) { }
 
-        public override Exp Diff() => this;
-
         public override double GetValue(double variableValue) => Math.Exp(variableValue);
 
         public override Exp WithVariable(Symbol newVariable) => new Exp(newVariable);
@@ -15,5 +13,7 @@ namespace Symbolic.Functions.Standart
         public override bool Equals(Function? other) => other is Exp && other.Variable! == Variable!;
 
         public override string ToString(string? inner) => $"exp({inner})";
+
+        protected override Exp _diff(Symbol variable) => this;
     }
 }

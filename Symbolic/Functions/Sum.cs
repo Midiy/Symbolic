@@ -5,9 +5,13 @@
         public Function Left { get; init; }
         public Function Right { get; init; }
 
-        public Sum(Function left, Function right) => (Left, Right) = (left, right);
+        public Sum(Function left, Function right)
+        {
+            (Left, Right) = (left, right);
+            if (Left.Variable == Right.Variable) { Variable = Left.Variable; }
+        }
 
-        public override Function Diff() => Left.Diff() + Right.Diff();
+        public override Function Diff(Symbol variable) => Left.Diff(variable) + Right.Diff(variable);
 
         public override double GetValue(double variableValue) => Left.GetValue(variableValue) + Right.GetValue(variableValue);
 
@@ -34,5 +38,7 @@
         public override string ToString(string? inner) => $"({Left.ToString(inner)}) + ({Right.ToString(inner)})";
 
         public override string ToString() => $"({Left}) + ({Right})";
+
+        protected override Function _diff(Symbol variable) => throw new System.NotImplementedException();
     }
 }

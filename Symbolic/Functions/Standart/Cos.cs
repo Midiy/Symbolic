@@ -6,8 +6,6 @@ namespace Symbolic.Functions.Standart
     {
         public Cos(Symbol variable) : base(variable) { }
 
-        public override Negation Diff() => (Negation)(-new Sin(Variable!));
-
         public override double GetValue(double variableValue) => Math.Cos(variableValue);
 
         public override Cos WithVariable(Symbol newVariable) => new Cos(newVariable);
@@ -15,5 +13,7 @@ namespace Symbolic.Functions.Standart
         public override bool Equals(Function? other) => other is Cos && other.Variable! == Variable!;
 
         public override string ToString(string? inner) => $"cos({inner})";
+
+        protected override Function _diff(Symbol variable) => -new Sin(Variable!);
     }
 }
