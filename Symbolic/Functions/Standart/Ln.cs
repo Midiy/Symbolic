@@ -10,6 +10,8 @@ namespace Symbolic.Functions.Standart
 
         public override double GetValue(double variableValue) => Math.Log(variableValue);
 
+        public override Ln WithVariable(Symbol newVariable) => new Ln(newVariable);
+
         public override bool Equals(Function? other) => other is Ln && other.Variable! == Variable!;
 
         public override string ToString(string? inner) => $"ln({inner})";

@@ -12,6 +12,8 @@ namespace Symbolic.Functions.Standart
 
         public override double GetValue(double variableValue) => Math.Log(variableValue) / Math.Log(Base);
 
+        public override Log WithVariable(Symbol newVariable) => new Log(newVariable, Base);
+
         public override bool Equals(Function? other) => other is Log l && l.Base == Base && other.Variable! == Variable!;
 
         public override string ToString(string? inner) => $"log({inner}, {Base})";

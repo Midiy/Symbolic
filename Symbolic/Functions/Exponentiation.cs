@@ -17,6 +17,8 @@ namespace Symbolic.Functions
 
         public override Function ApplyTo(Function inner) => Base.ApplyTo(inner) ^ Exponent.ApplyTo(inner);
 
+        public override Function WithVariable(Symbol newVariable) => Base.WithVariable(newVariable) ^ Exponent.WithVariable(newVariable);
+
         public override bool Equals(Function? other) => other is Exponentiation e && e.Base.Equals(Base) && e.Exponent.Equals(Exponent);
 
         public override string ToString(string? inner) => $"({Base.ToString(inner)})^({Exponent.ToString(inner)})";

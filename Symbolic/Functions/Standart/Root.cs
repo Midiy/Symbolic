@@ -12,6 +12,8 @@ namespace Symbolic.Functions.Standart
 
         public override double GetValue(double variableValue) => Math.Pow(variableValue, 1 / Degree);
 
+        public override Root WithVariable(Symbol newVariable) => new Root(newVariable, Degree);
+
         public override bool Equals(Function? other) => other is Root r && r.Degree == Degree && other.Variable == Variable;
 
         public override string ToString(string? inner) => $"({inner})^(1/({Degree}))";

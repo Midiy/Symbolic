@@ -16,6 +16,8 @@
 
         public override Function ApplyTo(Function inner) => inner;
 
+        public override Symbol WithVariable(Symbol newVariable) => newVariable;
+
         public override bool Equals(Function? other) => other is Symbol s && s.StrSymbol == StrSymbol;
 
         public override string ToString(string? inner) => inner;

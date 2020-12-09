@@ -10,6 +10,8 @@ namespace Symbolic.Functions.Standart
 
         public override double GetValue(double variableValue) => Math.Sqrt(variableValue);
 
+        public override Sqrt WithVariable(Symbol newVariable) => new Sqrt(newVariable);
+
         public override bool Equals(Function? other) => other is Sqrt && other.Variable! == Variable!;
 
         public override string ToString(string? inner) => $"sqrt({inner})";

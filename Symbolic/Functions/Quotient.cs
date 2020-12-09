@@ -21,6 +21,8 @@
 
         public override Function ApplyTo(Function inner) => Left.ApplyTo(inner) / Right.ApplyTo(inner);
 
+        public override Function WithVariable(Symbol newVariable) => Left.WithVariable(newVariable) / Right.WithVariable(newVariable);
+
         public override bool Equals(Function? other) => other is Quotient q && q.Left == Left && q.Right == Right;
 
         public override string ToString(string? inner) => $"({Left.ToString(inner)}) / ({Right.ToString(inner)})";

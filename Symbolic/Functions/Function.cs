@@ -24,9 +24,16 @@ namespace Symbolic.Functions
 
         public virtual Function Divide(Function other) => this == other ? 1 : new Quotient(this, other);
 
-        public virtual Function ApplyTo(Function inner) => inner is Constant c ? this.GetValue(c) : new Composition(this, inner);
+        public virtual Function ApplyTo(Function inner) => inner switch
+                                                           {
+                                                               Constant c => GetValue(c),
+                                                               Symbol s => WithVariable(s),
+                                                               _ => new Composition(this, inner)
+                                                           };
 
         public virtual Function Raise(Function other) => other is Constant c ? new Standart.Power(null, c).ApplyTo(this) : new Exponentiation(this, other);
+
+        public abstract Function WithVariable(Symbol newVariable);
         
         public abstract bool Equals(Function? other);
 

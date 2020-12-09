@@ -12,6 +12,8 @@ namespace Symbolic.Functions.Standart
 
         public override double GetValue(double variableValue) => Math.Pow(variableValue, Exponent);
 
+        public override Power WithVariable(Symbol newVariable) => new Power(newVariable, Exponent);
+
         public override bool Equals(Function? other) => other is Power p && p.Exponent == Exponent && other.Variable! == Variable!;
 
         public override string ToString(string? inner) => $"({inner})^({Exponent})";

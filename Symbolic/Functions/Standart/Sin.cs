@@ -10,6 +10,8 @@ namespace Symbolic.Functions.Standart
 
         public override double GetValue(double variableValue) => Math.Sin(variableValue);
 
+        public override Sin WithVariable(Symbol newVariable) => new Sin(newVariable);
+
         public override bool Equals(Function? other) => other is Sin && other.Variable! == Variable!;
 
         public override string ToString(string? inner) => $"sin({inner})";

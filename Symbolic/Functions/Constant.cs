@@ -50,6 +50,8 @@ namespace Symbolic.Functions
 
         public override Function ApplyTo(Function _) => this;
 
+        public override Function WithVariable(Symbol newVariable) => this;
+
         public override bool Equals(Function? other) => (other as Constant)?.Value == Value;
 
         public override string ToString(string? inner) => ToString();

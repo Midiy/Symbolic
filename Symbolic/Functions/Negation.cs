@@ -14,6 +14,8 @@
 
         public override Function ApplyTo(Function inner) => -Inner.ApplyTo(inner);
 
+        public override Function WithVariable(Symbol newVariable) => -Inner.WithVariable(newVariable);
+
         public override bool Equals(Function? other) => other is Negation n && n.Inner == Inner;
 
         public override string ToString(string? inner) => $"-({Inner.ToString(inner)})";
