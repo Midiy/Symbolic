@@ -15,7 +15,7 @@
 
         public override Function WithVariable(Symbol newVariable) => Outer.ApplyTo(Inner.WithVariable(newVariable));
 
-        public override string ToString(string? inner) => Outer.ToString(Inner.ToString(inner));
+        public override string ToString(string inner) => Outer.ToString(Inner.ToString(inner));
 
         public override string ToString() => Outer.ToString(Inner.ToString());
 

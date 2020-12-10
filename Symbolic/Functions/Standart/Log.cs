@@ -14,7 +14,7 @@ namespace Symbolic.Functions.Standart
 
         public override bool Equals(Function? other) => other is Log l && l.Base == Base && other.Variable! == Variable!;
 
-        public override string ToString(string? inner) => $"log({inner}, {Base})";
+        public override string ToString(string inner) => $"log({inner}, {Base})";
 
         protected override Function _diff(Symbol variable) => 1 / (new Ln(Variable!).ApplyTo(Base) * Variable!);
     }

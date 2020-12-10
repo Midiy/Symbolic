@@ -12,7 +12,7 @@ namespace Symbolic.Functions.Standart
 
         public override bool Equals(Function? other) => other is Cos && other.Variable! == Variable!;
 
-        public override string ToString(string? inner) => $"cos({inner})";
+        public override string ToString(string inner) => $"cos({inner})";
 
         protected override Function _diff(Symbol variable) => -new Sin(Variable!);
     }

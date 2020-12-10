@@ -12,7 +12,7 @@ namespace Symbolic.Functions.Standart
 
         public override bool Equals(Function? other) => other is Cot && other.Variable! == Variable!;
 
-        public override string ToString(string? inner) => $"cot({inner})";
+        public override string ToString(string inner) => $"cot({inner})";
 
         protected override Function _diff(Symbol variable) => -1 / (new Sin(Variable!) ^ 2);
     }

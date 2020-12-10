@@ -10,7 +10,7 @@ namespace Symbolic.Functions.Standart
 
         public override Sqrt WithVariable(Symbol newVariable) => new Sqrt(newVariable);
 
-        public override string ToString(string? inner) => $"sqrt({inner})";
+        public override string ToString(string inner) => $"sqrt({inner})";
 
         protected override Function _diff(Symbol variable) => 1 / (2 * new Sqrt(Variable!));
     }

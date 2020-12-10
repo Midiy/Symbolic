@@ -10,6 +10,6 @@ namespace Symbolic.Functions.Standart
 
         public override Log2 WithVariable(Symbol newVariable) => new Log2(newVariable);
 
-        public override string ToString(string? inner) => $"log2({inner})";
+        public override string ToString(string inner) => $"log2({inner})";
     }
 }

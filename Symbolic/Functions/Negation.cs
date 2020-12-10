@@ -16,7 +16,7 @@
 
         public override bool Equals(Function? other) => other is Negation n && n.Inner == Inner;
 
-        public override string ToString(string? inner) => $"-({Inner.ToString(inner)})";
+        public override string ToString(string inner) => $"-({Inner.ToString(inner)})";
 
         public override string ToString() => $"-({Inner})";
 

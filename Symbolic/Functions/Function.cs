@@ -4,11 +4,11 @@ namespace Symbolic.Functions
 {
     public abstract class Function : IEquatable<Function>
     {
-        public Symbol? Variable { get; init; }
+        public Symbol Variable { get; init; }
 
-        protected Function() { }
+        protected Function() => Variable = Symbol.ANY;
 
-        public Function(Symbol? variable) => Variable = variable;
+        public Function(Symbol variable) => Variable = variable;
 
         public abstract double GetValue(double variableValue);
 
@@ -67,14 +67,14 @@ namespace Symbolic.Functions
 
         public override bool Equals(object? obj) => obj is Function f && this.Equals(f);
 
-        public virtual string ToString(string? inner) => $"Unknown function of {inner}";
+        public virtual string ToString(string inner) => $"Unknown function of {inner}";
 
-        public override string ToString() => ToString(Variable?.ToString());
+        public override string ToString() => ToString(Variable.ToString());
 
         protected abstract Function _diff(Symbol variable);
 
         #region Operators
-        public static bool operator ==(Function left, Function right) => (left is null && right is null) || left.Equals(right);
+        public static bool operator ==(Function left, Function right) => (left is null && right is null) || (left is not null && left.Equals(right));
 
         public static bool operator !=(Function left, Function right) => !(left == right);
 

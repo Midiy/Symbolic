@@ -25,7 +25,7 @@ namespace Symbolic.Functions
 
         public override bool Equals(Function? other) => other is Exponentiation e && e.Base.Equals(Base) && e.Exponent.Equals(Exponent);
 
-        public override string ToString(string? inner) => $"({Base.ToString(inner)})^({Exponent.ToString(inner)})";
+        public override string ToString(string inner) => $"({Base.ToString(inner)})^({Exponent.ToString(inner)})";
 
         public override string ToString() => $"({Base})^({Exponent})";
 

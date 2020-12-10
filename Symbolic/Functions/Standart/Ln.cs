@@ -10,7 +10,7 @@ namespace Symbolic.Functions.Standart
 
         public override Ln WithVariable(Symbol newVariable) => new Ln(newVariable);
 
-        public override string ToString(string? inner) => $"ln({inner})";
+        public override string ToString(string inner) => $"ln({inner})";
 
         protected override Function _diff(Symbol variable) => 1 / Variable!;
     }

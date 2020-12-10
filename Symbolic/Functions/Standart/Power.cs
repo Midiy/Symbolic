@@ -49,7 +49,7 @@ namespace Symbolic.Functions.Standart
 
         public override bool Equals(Function? other) => other is Power p && p.Exponent == Exponent && other.Variable! == Variable!;
 
-        public override string ToString(string? inner) => $"({inner})^({Exponent})";
+        public override string ToString(string inner) => $"({inner})^({Exponent})";
 
         protected override Function _diff(Symbol variable) => Exponent * (Variable! ^ (Exponent - 1));
     }
