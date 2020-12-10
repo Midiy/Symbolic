@@ -1,11 +1,13 @@
 ﻿using System;
 
+using Symbolic.Functions.Standart;
+
 namespace Symbolic.Functions
 {
-    public class Constant : Function
+    public class Constant : Function, IComparable<Constant>, IComparable<double>
     {
         public double Value { get; init; }
-        
+
         public Constant(double value) : base(Symbol.ANY) => Value = value;
 
         public override double GetValue(double _) => Value;
@@ -18,14 +20,18 @@ namespace Symbolic.Functions
         {
             if (Value == 0) { return other; }
             else if (other is Constant c) { return Value + c.Value; }
+            else if (other is Power pw &&  pw.Exponent % 1 == 0) { return ((Monomial)pw).Add(this); }
+            else if (other is Symbol || other is Monomial || other is Polynomial) { return other.Add(this); }
             else { return base.Add(other); }
         }
 
         public override Function Subtract(Function other)
         {
             if (Value == 0) { return other.Negate(); }
-            else if (other is Constant c) { return Value + c.Value; }
-            else { return base.Add(other); }
+            else if (other is Constant c) { return Value - c.Value; }
+            else if (other is Power pw && pw.Exponent % 1 == 0) { return ((Monomial)pw).Negate().Add(this); }
+            else if (other is Symbol || other is Monomial || other is Polynomial) { return other.Negate().Add(this); }
+            else { return base.Subtract(other); }
         }
 
         public override Function Multiply(Function other)
@@ -34,23 +40,29 @@ namespace Symbolic.Functions
             else if (Value == 1) { return other; }
             else if (Value == -1) { return other.Negate(); }
             else if (other is Constant c) { return Value * c.Value; }
+            else if (other is Power pw && pw.Exponent % 1 == 0) { return ((Monomial)pw).Multiply(this); }
+            else if (other is Symbol || other is Monomial || other is Polynomial) { return other.Multiply(this); }
             else { return base.Multiply(other); }
         }
 
         public override Function Divide(Function other)
         {
-            if (Value == 0) { return 0; }
-            else if (other is Constant c)
+            if (other is Constant c)
             {
-                if (c == 0) { throw new System.DivideByZeroException(); }
+                if (c == 0) { throw new DivideByZeroException(); }
                 else { return Value / c.Value; }
             }
+            else if (Value == 0) { return 0; }
             else { return base.Divide(other); }
         }
 
         public override Function ApplyTo(Function _) => this;
 
         public override Function WithVariable(Symbol newVariable) => this;
+
+        public int CompareTo(Constant? other) => Value.CompareTo(other?.Value);
+
+        public int CompareTo(double value) => Value.CompareTo(value);
 
         public override bool Equals(Function? other) => (other as Constant)?.Value == Value;
 

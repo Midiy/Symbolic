@@ -16,7 +16,12 @@ namespace Symbolic.Functions
 
         public virtual Function Negate() => new Negation(this);
 
-        public virtual Function Add(Function other) => other == 0 ? this : new Sum(this, other);
+        public virtual Function Add(Function other)
+        {
+            if (this == -other) { return 0; }
+            else if (other == 0) { return this; }
+            else { return new Sum(this, other); }
+        }
 
         public virtual Function Subtract(Function other)
         {
@@ -50,14 +55,10 @@ namespace Symbolic.Functions
 
         public virtual Function Raise(Function other)
         {
-            if (other == 0)
-            {
-                if (this == 0) { throw new ArithmeticException(); }
-                else { return 1; }
-            }
+            if (other == 0 && this == 0) { throw new ArithmeticException(); }
             else if (other == 1) { return this; }
             else if (other is Constant c) { return new Standart.Power(Symbol.ANY, c).ApplyTo(this); }
-            else { return new Exponentiation(this, other); }
+            return new Exponentiation(this, other);
         }
 
         public abstract Function WithVariable(Symbol newVariable);
@@ -73,9 +74,9 @@ namespace Symbolic.Functions
         protected abstract Function _diff(Symbol variable);
 
         #region Operators
-        public static bool operator ==(Function left, Function right) => left.Equals(right);
+        public static bool operator ==(Function left, Function right) => (left is null && right is null) || left.Equals(right);
 
-        public static bool operator !=(Function left, Function right) => !left.Equals(right);
+        public static bool operator !=(Function left, Function right) => !(left == right);
 
         public static Function operator -(Function inner) => inner.Negate();
 
