@@ -6,6 +6,9 @@ namespace Symbolic.Functions
 {
     public class Constant : Function, IComparable<Constant>, IComparable<double>
     {
+        public static readonly Constant E = Math.E;
+        public static readonly Constant PI = Math.PI;
+
         public double Value { get; init; }
 
         public Constant(double value) : base(Symbol.ANY) => Value = value;

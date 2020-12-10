@@ -2,15 +2,13 @@
 
 namespace Symbolic.Functions.Standart
 {
-    public class Sqrt : Function
+    public class Sqrt : Root
     {
-        public Sqrt(Symbol variable) : base(variable) { }
+        public Sqrt(Symbol variable) : base(variable, 2) { }
 
         public override double GetValue(double variableValue) => Math.Sqrt(variableValue);
 
         public override Sqrt WithVariable(Symbol newVariable) => new Sqrt(newVariable);
-
-        public override bool Equals(Function? other) => other is Sqrt && other.Variable! == Variable!;
 
         public override string ToString(string? inner) => $"sqrt({inner})";
 
