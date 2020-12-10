@@ -29,6 +29,8 @@ namespace Symbolic.Functions
 
         public override string ToString() => $"({Base})^({Exponent})";
 
-        protected override Function _diff(Symbol variable) => throw new NotImplementedException();
+        protected override Function _diff(Symbol _) => throw new NotImplementedException();
+
+        protected override Function _integrate(Symbol _) => throw new NotImplementedException();
     }
 }

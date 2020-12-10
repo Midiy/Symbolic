@@ -10,6 +10,7 @@
             if (right is Constant c && c.Value == 0) { throw new System.DivideByZeroException(); }
             (Left, Right) = (left, right);
             if (Left.Variable == Right.Variable) { Variable = Left.Variable; }
+            if (Right is Constant) { HasAllIntegralsKnown = Left.HasAllIntegralsKnown; }
         }
 
         public override Function Diff(Symbol variable) => (Left.Diff(variable) * Right - Left * Right.Diff(variable)) / (Right ^ 2);
@@ -30,6 +31,12 @@
 
         public override string ToString() => $"({Left}) / ({Right})";
 
-        protected override Function _diff(Symbol variable) => throw new System.NotImplementedException();
+        protected override Function _diff(Symbol variable) => (Left.Diff(variable) * Right - Right.Diff(variable) * Left) / (Right ^ 2);
+
+        protected override Function _integrate(Symbol variable)
+        {
+            if (Right is Constant c) { return Left.Integrate(variable) / c; }
+            else { throw new System.NotImplementedException(); }
+        }
     }
 }

@@ -5,6 +5,7 @@ namespace Symbolic.Functions
     public abstract class Function : IEquatable<Function>
     {
         public Symbol Variable { get; init; }
+        public bool HasAllIntegralsKnown { get; init; } = false;
 
         protected Function() => Variable = Symbol.ANY;
 
@@ -13,6 +14,14 @@ namespace Symbolic.Functions
         public abstract double GetValue(double variableValue);
 
         public virtual Function Diff(Symbol variable) => variable == Variable ? _diff(variable) : 0;
+
+        public virtual Function Integrate(Symbol variable) => variable == Variable ? _integrate(variable) : this * variable;
+
+        public virtual double Integrate(Symbol variable, Constant lowerBound, Constant upperBound)
+        {
+            Function antideriv = Integrate(variable);
+            return antideriv.GetValue(upperBound) - antideriv.GetValue(lowerBound);
+        }
 
         public virtual Function Negate() => new Negation(this);
 
@@ -72,6 +81,8 @@ namespace Symbolic.Functions
         public override string ToString() => ToString(Variable.ToString());
 
         protected abstract Function _diff(Symbol variable);
+
+        protected abstract Function _integrate(Symbol variable);
 
         #region Operators
         public static bool operator ==(Function left, Function right) => (left is null && right is null) || (left is not null && left.Equals(right));

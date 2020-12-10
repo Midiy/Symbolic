@@ -14,6 +14,7 @@ namespace Symbolic.Functions
         {
             Coeffs = (reversed ? coeffs : coeffs.Reverse());
             if (Coeffs.Count() == 0) { Coeffs = new Constant[] { 0 }; }
+            HasAllIntegralsKnown = true;
         }
 
         public Polynomial(Symbol variable, params Constant[] coeffs) : this(variable, coeffs, false) { }
@@ -24,6 +25,7 @@ namespace Symbolic.Functions
             if (!addends.All((Monomial m) => m.Variable == variable)) { throw new Exception(); }   // TODO : Specify exception type.
             Coeffs = addends.OrderBy((Monomial m) => m.Exponent).Select((Monomial m) => m.Coefficient);
             Variable = variable;
+            HasAllIntegralsKnown = true;
         }
 
         public Polynomial(params Monomial[] addends) : this((IEnumerable<Monomial>)addends) { }
@@ -155,7 +157,22 @@ namespace Symbolic.Functions
             return str;
         }
 
-        protected override Function _diff(Symbol variable) => new Polynomial(variable, Coeffs.Skip(1).Select((Constant coeff, int num) => coeff * (num + 1)), true);
+        protected override Function _diff(Symbol _)
+        {
+            if (Coeffs.Count() == 1) { return 0; }
+            else if (Coeffs.Count() == 2) { return Coeffs.Last(); }
+            else { return new Polynomial(Variable, Coeffs.Skip(1).Select((Constant coeff, int num) => coeff * (num + 1)), true); }
+        }
+
+        protected override Function _integrate(Symbol variable)
+        {
+            if (Coeffs.Count() == 1)
+            {
+                if (Coeffs.First() == 0) { return 0; }
+                else { return new Monomial(variable, Coeffs.First(), 1); }
+            }
+            else { return new Polynomial(Variable, Coeffs.Select((Constant coeff, int num) => coeff / (num + 1)).Prepend(0), true); }
+        }
 
         public static explicit operator Polynomial(Constant c) => new Polynomial(Symbol.ANY, c);
 

@@ -10,10 +10,12 @@ namespace Symbolic.Functions.Standart
 
         public override Cot WithVariable(Symbol newVariable) => new Cot(newVariable);
 
-        public override bool Equals(Function? other) => other is Cot && other.Variable! == Variable!;
+        public override bool Equals(Function? other) => other is Cot && other.Variable == Variable;
 
         public override string ToString(string inner) => $"cot({inner})";
 
-        protected override Function _diff(Symbol variable) => -1 / (new Sin(Variable!) ^ 2);
+        protected override Function _diff(Symbol _) => -1 / (new Sin(Variable) ^ 2);
+
+        protected override Function _integrate(Symbol _) => throw new NotImplementedException();   // TODO : Implement after adding Functions.Standart.Abs : ln(|sin(x)|).
     }
 }

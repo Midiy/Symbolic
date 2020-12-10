@@ -1,4 +1,6 @@
-﻿namespace Symbolic.Functions
+﻿using Symbolic.Functions.Standart;
+
+namespace Symbolic.Functions
 {
     public class Product : Function
     {
@@ -9,6 +11,10 @@
         {
             (Left, Right) = (left, right);
             if (Left.Variable == Right.Variable) { Variable = Left.Variable; }
+            HasAllIntegralsKnown = (Left.HasAllIntegralsKnown && (Right is Constant || Right is Symbol || Right is Monomial || Right is Polynomial ||
+                                                          Right is Power pw && pw.Exponent >= 0 && pw.Exponent % 1 == 0)) ||
+                               (Right.HasAllIntegralsKnown && (Left is Constant || Left is Symbol || Left is Monomial || Left is Polynomial ||
+                                                           Left is Power pw1 && pw1.Exponent >= 0 && pw1.Exponent % 1 == 0));
         }
 
         public override Function Diff(Symbol variable) => Left.Diff(variable) * Right + Left * Right.Diff(variable);
@@ -39,6 +45,35 @@
 
         public override string ToString() => $"({Left}) * ({Right})";
 
-        protected override Function _diff(Symbol variable) => throw new System.NotImplementedException();
+        protected override Function _diff(Symbol variable) => Left.Diff(variable) * Right + Right.Diff(variable) * Left;
+
+        protected override Function _integrate(Symbol variable)
+        {
+            if (HasAllIntegralsKnown)
+            {
+                Function u, dv;
+                if (Right.HasAllIntegralsKnown)
+                {
+                    u = Left;
+                    dv = Right;
+                }
+                else
+                {
+                    u = Right;
+                    dv = Left;
+                }
+                Function result = 0;
+                bool isEvenIter = true;
+                do
+                {
+                    dv = dv.Integrate(variable);
+                    result += (isEvenIter ? 1 : -1) * u * dv;
+                    u = u.Diff(variable);
+                    isEvenIter = !isEvenIter;
+                } while (u != 0);
+                return result;
+            }
+            throw new System.NotImplementedException();
+        }
     }
 }

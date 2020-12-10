@@ -106,5 +106,7 @@ namespace Symbolic.Functions
         public override string ToString() => StrSymbol;
 
         protected override Constant _diff(Symbol _) => 1;
+
+        protected override Function _integrate(Symbol _) => (this ^ 2) / 2;
     }
 }

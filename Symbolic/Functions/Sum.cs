@@ -9,6 +9,7 @@
         {
             (Left, Right) = (left, right);
             if (Left.Variable == Right.Variable) { Variable = Left.Variable; }
+            HasAllIntegralsKnown = Left.HasAllIntegralsKnown && Right.HasAllIntegralsKnown;
         }
 
         public override Function Diff(Symbol variable) => Left.Diff(variable) + Right.Diff(variable);
@@ -39,6 +40,8 @@
 
         public override string ToString() => $"({Left}) + ({Right})";
 
-        protected override Function _diff(Symbol variable) => throw new System.NotImplementedException();
+        protected override Function _diff(Symbol variable) => Left.Diff(variable) + Right.Diff(variable);
+
+        protected override Function _integrate(Symbol variable) => Left.Integrate(variable) + Right.Integrate(variable);
     }
 }

@@ -12,6 +12,10 @@ namespace DllTest
             Symbol x = new Symbol("x");
             Symbol y = new Symbol("y");
 
+            Console.WriteLine(x.Integrate(x) is Monomial);
+            Console.WriteLine(((x ^ 3) * new Sin(x)).Integrate(x));
+
+
             Function f1 = (new Cos(x).ApplyTo(new Ln(x)) + (x ^ 3)) * (x ^ 2) / new Power(x, 2);
             Console.WriteLine(f1);
             Console.WriteLine(f1.Diff(x));

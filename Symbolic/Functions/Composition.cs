@@ -5,7 +5,11 @@
         public Function Outer { get; init; }
         public Function Inner { get; init; }
 
-        public Composition(Function outer, Function inner) : base(inner.Variable) => (Outer, Inner) = (outer, inner);
+        public Composition(Function outer, Function inner) : base(inner.Variable)
+        {
+            (Outer, Inner) = (outer, inner);
+            HasAllIntegralsKnown = Inner is Symbol && Outer.HasAllIntegralsKnown;
+        }
 
         public override bool Equals(Function? other) => other is Composition c && c.Outer.Equals(Outer) && c.Inner.Equals(Inner);
 
@@ -20,5 +24,11 @@
         public override string ToString() => Outer.ToString(Inner.ToString());
 
         protected override Function _diff(Symbol variable) => Outer.Diff(Outer.Variable).ApplyTo(Inner) * Inner.Diff(variable);
+
+        protected override Function _integrate(Symbol variable)
+        {
+            if (Inner is Symbol) { return Outer.Integrate(variable); }
+            else { throw new System.NotImplementedException(); }
+        }
     }
 }

@@ -6,7 +6,11 @@ namespace Symbolic.Functions.Standart
     {
         public Constant Exponent { get; init; }
 
-        public Power(Symbol variable, Constant exponent) : base(variable) => Exponent = exponent;
+        public Power(Symbol variable, Constant exponent) : base(variable)
+        {
+            Exponent = exponent;
+            HasAllIntegralsKnown = true;
+        }
 
         public override double GetValue(double variableValue) => Math.Pow(variableValue, Exponent);
 
@@ -47,10 +51,12 @@ namespace Symbolic.Functions.Standart
 
         public override Power WithVariable(Symbol newVariable) => new Power(newVariable, Exponent);
 
-        public override bool Equals(Function? other) => other is Power p && p.Exponent == Exponent && other.Variable! == Variable!;
+        public override bool Equals(Function? other) => other is Power p && p.Exponent == Exponent && other.Variable == Variable;
 
         public override string ToString(string inner) => $"({inner})^({Exponent})";
 
-        protected override Function _diff(Symbol variable) => Exponent * (Variable! ^ (Exponent - 1));
+        protected override Function _diff(Symbol _) => Exponent * (Variable ^ (Exponent - 1));
+
+        protected override Function _integrate(Symbol _) => (Variable ^ (Exponent + 1)) / (Exponent + 1);
     }
 }

@@ -12,6 +12,8 @@ namespace Symbolic.Functions.Standart
 
         public override string ToString(string inner) => $"ln({inner})";
 
-        protected override Function _diff(Symbol variable) => 1 / Variable!;
+        protected override Function _diff(Symbol _) => 1 / Variable;
+
+        protected override Function _integrate(Symbol _) => Variable * new Ln(Variable) - Variable;
     }
 }

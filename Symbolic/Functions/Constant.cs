@@ -11,7 +11,11 @@ namespace Symbolic.Functions
 
         public double Value { get; init; }
 
-        public Constant(double value) : base(Symbol.ANY) => Value = value;
+        public Constant(double value) : base(Symbol.ANY)
+        {
+            Value = value;
+            HasAllIntegralsKnown = true;
+        }
 
         public override double GetValue(double _) => Value;
 
@@ -69,11 +73,13 @@ namespace Symbolic.Functions
 
         public override bool Equals(Function? other) => (other as Constant)?.Value == Value;
 
-        public override string ToString(string? inner) => ToString();
+        public override string ToString(string inner) => ToString();
 
         public override string ToString() => Value.ToString();
 
         protected override Function _diff(Symbol variable) => throw new NotImplementedException();
+
+        protected override Function _integrate(Symbol variable) => this * variable;
 
         #region Operators
         public static Constant operator -(Constant inner) => -inner.Value;

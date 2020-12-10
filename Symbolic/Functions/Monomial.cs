@@ -9,7 +9,11 @@ namespace Symbolic.Functions
         public Constant Coefficient { get; init; }
         public Constant Exponent { get; init; }
 
-        public Monomial(Symbol variable, Constant coefficient, Constant exponent) : base(variable) => (Coefficient, Exponent) = (coefficient, exponent);
+        public Monomial(Symbol variable, Constant coefficient, Constant exponent) : base(exponent == 0 ? Symbol.ANY : variable)
+        {
+            (Coefficient, Exponent) = (coefficient, exponent);
+            HasAllIntegralsKnown = true;
+        }
 
         public override double GetValue(double variableValue) => Coefficient * Math.Pow(variableValue, Exponent);
 
@@ -91,13 +95,20 @@ namespace Symbolic.Functions
 
         public override bool Equals(Function? other) => other is Monomial m && Coefficient == m.Coefficient && Exponent == m.Exponent;
 
-        public override string ToString(string? inner) => $"{Coefficient}*({inner})^{Exponent}";
+        public override string ToString(string inner) => $"{Coefficient}*({inner})^{Exponent}";
 
         protected override Function _diff(Symbol variable)
         {
             if (Coefficient == 0 || Exponent == 0) { return 0; }
             else if (Exponent == 1) { return Coefficient; }
             else { return new Monomial(variable, Coefficient * Exponent, Exponent - 1); }
+        }
+
+        protected override Function _integrate(Symbol variable)
+        {
+            if (Coefficient == 0) { return 0; }
+            else if (Exponent == 0) { return Coefficient * variable; }
+            else { return new Monomial(Variable, Coefficient / (Exponent + 1), Exponent + 1); }
         }
 
         public static explicit operator Monomial(Constant c) => new Monomial(Symbol.ANY, c, 0);
