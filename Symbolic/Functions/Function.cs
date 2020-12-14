@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace Symbolic.Functions
 {
@@ -29,6 +30,10 @@ namespace Symbolic.Functions
         {
             if (this == -other) { return 0; }
             else if (other == 0) { return this; }
+            else if (other is Partial p) 
+            { 
+                return new Partial(p.Parts.Select(((Function func, Constant leftBound, Constant rightBound) t) => (this.Add(t.func), t.leftBound, t.rightBound)));
+            }
             else { return new Sum(this, other); }
         }
 
@@ -44,6 +49,10 @@ namespace Symbolic.Functions
             if (other == -1) { return this.Negate(); }
             else if (other == 0) { return 0; }
             else if (other == 1) { return this; }
+            else if (other is Partial p)
+            {
+                return new Partial(p.Parts.Select(((Function func, Constant leftBound, Constant rightBound) t) => (this.Multiply(t.func), t.leftBound, t.rightBound)));
+            }
             else { return new Product(this, other); }
         }
 
@@ -52,6 +61,10 @@ namespace Symbolic.Functions
             if (this == other) { return 1; }
             else if (other == -1) { return this.Negate(); }
             else if (other == 1) { return this; }
+            else if (other is Partial p)
+            {
+                return new Partial(p.Parts.Select(((Function func, Constant leftBound, Constant rightBound) t) => (this.Divide(t.func), t.leftBound, t.rightBound)));
+            }
             else { return new Quotient(this, other); }
         }
 
@@ -60,6 +73,10 @@ namespace Symbolic.Functions
             if (other == 0 && this == 0) { throw new ArithmeticException(); }
             else if (other == 1) { return this; }
             else if (other is Constant c) { return new Standart.Power(Symbol.ANY, c).ApplyTo(this); }
+            else if (other is Partial p)
+            {
+                return new Partial(p.Parts.Select(((Function func, Constant leftBound, Constant rightBound) t) => (this.Raise(t.func), t.leftBound, t.rightBound)));
+            }
             return new Exponentiation(this, other);
         }
 
@@ -67,6 +84,7 @@ namespace Symbolic.Functions
                                                            {
                                                                Constant c => GetValue(c),
                                                                Symbol s => WithVariable(s),
+                                                               Partial p => new Partial(p.Parts.Select(((Function func, Constant leftBound, Constant rightBound) t) => (this.ApplyTo(t.func), t.leftBound, t.rightBound))),
                                                                _ => new Composition(this, inner)
                                                            };
 

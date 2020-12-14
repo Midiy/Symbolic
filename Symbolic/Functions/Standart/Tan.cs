@@ -16,6 +16,6 @@ namespace Symbolic.Functions.Standart
         
         protected override Function _diff(Symbol _) => 1 / (new Cos(Variable) ^ 2);
 
-        protected override Function _integrate(Symbol _) => throw new NotImplementedException();   // TODO : Implement after adding Functions.Standart.Abs : -ln(cos(|x|)).
+        protected override Function _integrate(Symbol _) => -new Ln(Symbol.ANY).ApplyTo(new Abs(Symbol.ANY).ApplyTo(new Cos(Variable)));
     }
 }
