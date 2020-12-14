@@ -52,7 +52,7 @@ namespace Symbolic.Functions
             if (HasAllIntegralsKnown)
             {
                 Function u, dv;
-                if (Right.HasAllIntegralsKnown)
+                if (Left is Constant || Left is Symbol || Left is Monomial || Left is Polynomial || Left is Power pw && pw.Exponent >= 0 && pw.Exponent % 1 == 0)
                 {
                     u = Left;
                     dv = Right;

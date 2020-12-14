@@ -55,13 +55,6 @@ namespace Symbolic.Functions
             else { return new Quotient(this, other); }
         }
 
-        public virtual Function ApplyTo(Function inner) => inner switch
-                                                           {
-                                                               Constant c => GetValue(c),
-                                                               Symbol s => WithVariable(s),
-                                                               _ => new Composition(this, inner)
-                                                           };
-
         public virtual Function Raise(Function other)
         {
             if (other == 0 && this == 0) { throw new ArithmeticException(); }
@@ -69,6 +62,13 @@ namespace Symbolic.Functions
             else if (other is Constant c) { return new Standart.Power(Symbol.ANY, c).ApplyTo(this); }
             return new Exponentiation(this, other);
         }
+
+        public virtual Function ApplyTo(Function inner) => inner switch
+                                                           {
+                                                               Constant c => GetValue(c),
+                                                               Symbol s => WithVariable(s),
+                                                               _ => new Composition(this, inner)
+                                                           };
 
         public abstract Function WithVariable(Symbol newVariable);
         

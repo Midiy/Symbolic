@@ -8,6 +8,8 @@ namespace Symbolic.Functions
     {
         public static readonly Constant E = Math.E;
         public static readonly Constant PI = Math.PI;
+        public static readonly Constant PositiveInfinity = double.PositiveInfinity;
+        public static readonly Constant NegativeInfinity = double.NegativeInfinity;
 
         public double Value { get; init; }
 

@@ -7,12 +7,10 @@ namespace Symbolic.Functions
     public class Symbol : Function
     {
         public static readonly Symbol ANY = new Symbol("ANY") { _isAny = true };
-        public static readonly Symbol UNKNOWN = new Symbol("UNKNOWN") { _isUnknown = true };
 
         public string StrSymbol { get; init; }
 
         private bool _isAny { get; init; } = false;
-        private bool _isUnknown { get; init; } = false;
 
         public Symbol(string strSymbol)
         {
@@ -99,7 +97,7 @@ namespace Symbolic.Functions
 
         public override Symbol WithVariable(Symbol newVariable) => newVariable;
 
-        public override bool Equals(Function? other) => other is Symbol s && !_isUnknown && !s._isUnknown && (s.StrSymbol == StrSymbol || _isAny || s._isAny);
+        public override bool Equals(Function? other) => other is Symbol s && (s.StrSymbol == StrSymbol || _isAny || s._isAny);
 
         public override string ToString(string inner) => inner;
 

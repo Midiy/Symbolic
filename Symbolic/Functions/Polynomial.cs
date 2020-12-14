@@ -106,12 +106,18 @@ namespace Symbolic.Functions
             return base.Multiply(other);
         }
 
+        public override Function Divide(Function other)
+        {
+            if (other is Constant c && c != 0) { return new Polynomial(Variable, Coeffs.Select((Constant coeff) => coeff / c), true); }
+            return base.Divide(other);
+        }
+
         public override Function Raise(Function other)
         {
             if (other is Constant c && c % 1 == 0)
             {
                 Polynomial result = new Polynomial(Variable, new Constant[] { 1 });
-                for (int i = 0; i < c; i++) { result = (Polynomial)(result * result); }
+                for (int i = 0; i < c; i++) { result = (Polynomial)(result * this); }
                 return result;
             }
             else { return base.Raise(other); }
