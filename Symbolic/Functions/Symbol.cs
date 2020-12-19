@@ -4,7 +4,7 @@ using Symbolic.Functions.Standart;
 
 namespace Symbolic.Functions
 {
-    public class Symbol : Function
+    public class Symbol : Monomial
     {
         public static readonly Symbol ANY = new Symbol("ANY") { _isAny = true };
 
@@ -16,11 +16,14 @@ namespace Symbolic.Functions
         {
             StrSymbol = strSymbol;
             Variable = this;
+            Coefficient = 1;
+            Exponent = 1;
+            Coeffs = new Constant[] { 0, 1 };
         }
 
         public override double GetValue(double variableValue) => variableValue;
 
-        public override Function Negate() => new Monomial(this, -1, 1);
+        public override Monomial Negate() => new Monomial(this, -1, 1);
 
         public override Function Add(Function other)
         {

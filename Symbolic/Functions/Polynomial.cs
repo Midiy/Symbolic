@@ -10,6 +10,8 @@ namespace Symbolic.Functions
     {
         public IEnumerable<Constant> Coeffs;
 
+        protected Polynomial() { }
+
         public Polynomial(Symbol variable, IEnumerable<Constant> coeffs, bool reversed = false) : base(variable)
         {
             Coeffs = (reversed ? coeffs : coeffs.Reverse());
@@ -21,9 +23,18 @@ namespace Symbolic.Functions
 
         public Polynomial(IEnumerable<Monomial> addends)
         {
-            Symbol variable = addends.First().Variable;
+            Symbol variable = addends.FirstOrDefault((Monomial m) => m.Variable != Symbol.ANY)?.Variable ?? Symbol.ANY;
             if (!addends.All((Monomial m) => m.Variable == variable)) { throw new Exception(); }   // TODO : Specify exception type.
-            Coeffs = addends.OrderBy((Monomial m) => m.Exponent).Select((Monomial m) => m.Coefficient);
+            addends = addends.OrderBy((Monomial m) => m.Exponent);
+            int maxPow = (int)addends.Last().Exponent;
+            Constant[] coeffs = new Constant[maxPow + 1];
+            int position = 0;
+            foreach (Monomial m in addends)
+            {
+                while (m.Exponent > position) { coeffs[position++] = 0; }
+                coeffs[position++] = m.Coefficient;
+            }
+            Coeffs = coeffs;
             Variable = variable;
             HasAllIntegralsKnown = true;
         }
@@ -47,10 +58,7 @@ namespace Symbolic.Functions
                     else { newCoeffs = newCoeffs.Concat(p.Coeffs.Skip(count1)); }
                     return new Polynomial(Variable, newCoeffs, true);
                 }
-                else if (other is Constant c)                                           { return this.Add((Polynomial)c);  }
-                else if (other is Symbol s)                                             { return this.Add((Polynomial)s);  }
                 else if (other is Power pw && pw.Exponent >= 0 && pw.Exponent % 1 == 0) { return this.Add((Polynomial)pw); }
-                else if (other is Monomial m)                                           { return this.Add((Polynomial)m);  }
             }
             return base.Add(other);
         }
@@ -68,10 +76,7 @@ namespace Symbolic.Functions
                     else { newCoeffs = newCoeffs.Concat(p.Coeffs.Skip(count1).Select((Constant c) => -c)); }
                     return new Polynomial(Variable, newCoeffs, true);
                 }
-                else if (other is Constant c)                                           { return this.Subtract((Polynomial)c); }
-                else if (other is Symbol s)                                             { return this.Subtract((Polynomial)s); }
                 else if (other is Power pw && pw.Exponent >= 0 && pw.Exponent % 1 == 0) { return this.Subtract((Polynomial)pw); }
-                else if (other is Monomial m)                                           { return this.Subtract((Polynomial)m); }
             }
             return base.Subtract(other);
         }
@@ -98,10 +103,7 @@ namespace Symbolic.Functions
                     }
                     return new Polynomial(Variable, newCoeffs, true);
                 }
-                else if (other is Constant c)                                           { return this.Multiply((Polynomial)c); }
-                else if (other is Symbol s)                                             { return this.Multiply((Polynomial)s); }
                 else if (other is Power pw && pw.Exponent >= 0 && pw.Exponent % 1 == 0) { return this.Multiply((Polynomial)pw); }
-                else if (other is Monomial m)                                           { return this.Multiply((Polynomial)m); }
             }
             return base.Multiply(other);
         }
@@ -180,16 +182,10 @@ namespace Symbolic.Functions
             else { return new Polynomial(Variable, Coeffs.Select((Constant coeff, int num) => coeff / (num + 1)).Prepend(0), true); }
         }
 
-        public static explicit operator Polynomial(Constant c) => new Polynomial(Symbol.ANY, c);
-
-        public static explicit operator Polynomial(Symbol variable) => new Polynomial(variable, 1, 0);
-
         public static explicit operator Polynomial(Power power)
         {
             if (power.Exponent < 0 && power.Exponent % 1 != 0) { throw new InvalidCastException(); }
             return new Polynomial(power.Variable, Enumerable.Repeat(new Constant(0), (int)power.Exponent).Prepend(1));
         }
-
-        public static explicit operator Polynomial(Monomial monomial) => new Polynomial(monomial);
     }
 }
