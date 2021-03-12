@@ -12,8 +12,6 @@ namespace DllTest
             Symbol x = new Symbol("x");
             Symbol y = new Symbol("y");
 
-            Function fz = 0 * (1 * x ^ 2);
-
             Function fi = ((x ^ 3) * new Sin(x)).Integrate(x);
             Console.WriteLine(fi);
             Console.WriteLine();

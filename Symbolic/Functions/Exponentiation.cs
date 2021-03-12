@@ -12,7 +12,7 @@ namespace Symbolic.Functions
         public Exponentiation(Function @base, Function exponent)
         {
             (Base, Exponent) = (@base, exponent);
-            if (Base.Variable == Exponent.Variable) { Variable = Base.Variable; }
+            if (Base.Variable == Exponent.Variable) { Variable = Base.Variable | Exponent.Variable; }
         }
 
         public override Function Diff(Symbol variable) => this * (Exponent.Diff(variable) * new Ln(Variable).ApplyTo(Base) + Exponent * Base.Diff(variable) / Base);

@@ -9,11 +9,9 @@
         {
             if (right is Constant c && c.Value == 0) { throw new System.DivideByZeroException(); }
             (Left, Right) = (left, right);
-            if (Left.Variable == Right.Variable) { Variable = Left.Variable; }
+            if (Left.Variable == Right.Variable) { Variable = Left.Variable | Right.Variable; }
             if (Right is Constant) { HasAllIntegralsKnown = Left.HasAllIntegralsKnown; }
         }
-
-        public override Function Diff(Symbol variable) => (Left.Diff(variable) * Right - Left * Right.Diff(variable)) / (Right ^ 2);
 
         public override double GetValue(double variableValue) => Left.GetValue(variableValue) / Right.GetValue(variableValue);
 

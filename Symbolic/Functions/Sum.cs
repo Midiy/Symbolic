@@ -8,11 +8,9 @@
         public Sum(Function left, Function right)
         {
             (Left, Right) = (left, right);
-            if (Left.Variable == Right.Variable) { Variable = Left.Variable; }
+            if (Left.Variable == Right.Variable) { Variable = Left.Variable | Right.Variable; }
             HasAllIntegralsKnown = Left.HasAllIntegralsKnown && Right.HasAllIntegralsKnown;
         }
-
-        public override Function Diff(Symbol variable) => Left.Diff(variable) + Right.Diff(variable);
 
         public override double GetValue(double variableValue) => Left.GetValue(variableValue) + Right.GetValue(variableValue);
 

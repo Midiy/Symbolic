@@ -109,5 +109,7 @@ namespace Symbolic.Functions
         protected override Constant _diff(Symbol _) => 1;
 
         protected override Function _integrate(Symbol _) => (this ^ 2) / 2;
+
+        public static Symbol operator |(Symbol left, Symbol right) => (left is null || left._isAny) ? right : left;
     }
 }

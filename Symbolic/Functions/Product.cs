@@ -10,11 +10,9 @@ namespace Symbolic.Functions
         public Product(Function left, Function right)
         {
             (Left, Right) = (left, right);
-            if (Left.Variable == Right.Variable) { Variable = Left.Variable; }
-            HasAllIntegralsKnown = (Left.HasAllIntegralsKnown && (Right is Constant || Right is Symbol || Right is Monomial || Right is Polynomial ||
-                                                          Right is Power pw && pw.Exponent >= 0 && pw.Exponent % 1 == 0)) ||
-                               (Right.HasAllIntegralsKnown && (Left is Constant || Left is Symbol || Left is Monomial || Left is Polynomial ||
-                                                           Left is Power pw1 && pw1.Exponent >= 0 && pw1.Exponent % 1 == 0));
+            if (Left.Variable == Right.Variable) { Variable = Left.Variable | Right.Variable; }
+            HasAllIntegralsKnown = (Left.HasAllIntegralsKnown && (Right is Polynomial || Right is Power pw && pw.Exponent >= 0 && pw.Exponent % 1 == 0)) ||
+                                   (Right.HasAllIntegralsKnown && (Left is Polynomial || Left is Power pw1 && pw1.Exponent >= 0 && pw1.Exponent % 1 == 0));
         }
 
         public override Function Diff(Symbol variable) => Left.Diff(variable) * Right + Left * Right.Diff(variable);
@@ -52,7 +50,7 @@ namespace Symbolic.Functions
             if (HasAllIntegralsKnown)
             {
                 Function u, dv;
-                if (Left is Constant || Left is Symbol || Left is Monomial || Left is Polynomial || Left is Power pw && pw.Exponent >= 0 && pw.Exponent % 1 == 0)
+                if (Left is Polynomial || Left is Power pw && pw.Exponent >= 0 && pw.Exponent % 1 == 0)
                 {
                     u = Left;
                     dv = Right;
@@ -73,7 +71,7 @@ namespace Symbolic.Functions
                 } while (u != 0);
                 return result;
             }
-            throw new System.NotImplementedException();
+            else { throw new System.NotImplementedException(); }
         }
     }
 }

@@ -10,7 +10,11 @@ namespace Symbolic.Functions
     {
         public IEnumerable<Constant> Coeffs;
 
-        protected Polynomial() { }
+        protected Polynomial()
+        {
+            Coeffs = Array.Empty<Constant>();
+            HasAllIntegralsKnown = true;
+        }
 
         public Polynomial(Symbol variable, IEnumerable<Constant> coeffs, bool reversed = false) : base(variable)
         {
@@ -23,7 +27,7 @@ namespace Symbolic.Functions
 
         public Polynomial(IEnumerable<Monomial> addends)
         {
-            Symbol variable = addends.FirstOrDefault((Monomial m) => m.Variable != Symbol.ANY)?.Variable ?? Symbol.ANY;
+            Symbol variable = addends.Aggregate(Symbol.ANY, (Symbol acc, Monomial curr) => acc | curr.Variable);
             if (!addends.All((Monomial m) => m.Variable == variable)) { throw new Exception(); }   // TODO : Specify exception type.
             addends = addends.OrderBy((Monomial m) => m.Exponent);
             int maxPow = (int)addends.Last().Exponent;
@@ -56,7 +60,7 @@ namespace Symbolic.Functions
                     IEnumerable<Constant> newCoeffs = Coeffs.Zip(p.Coeffs, (Constant c1, Constant c2) => c1 + c2);
                     if (count1 > count2) { newCoeffs = newCoeffs.Concat(Coeffs.Skip(count2)); }
                     else { newCoeffs = newCoeffs.Concat(p.Coeffs.Skip(count1)); }
-                    return new Polynomial(Variable, newCoeffs, true);
+                    return new Polynomial(Variable | p.Variable, newCoeffs, true);
                 }
                 else if (other is Power pw && pw.Exponent >= 0 && pw.Exponent % 1 == 0) { return this.Add((Polynomial)pw); }
             }
@@ -74,7 +78,7 @@ namespace Symbolic.Functions
                     IEnumerable<Constant> newCoeffs = Coeffs.Zip(p.Coeffs, (Constant c1, Constant c2) => c1 - c2);
                     if (count1 > count2) { newCoeffs = newCoeffs.Concat(Coeffs.Skip(count2)); }
                     else { newCoeffs = newCoeffs.Concat(p.Coeffs.Skip(count1).Select((Constant c) => -c)); }
-                    return new Polynomial(Variable, newCoeffs, true);
+                    return new Polynomial(Variable | p.Variable, newCoeffs, true);
                 }
                 else if (other is Power pw && pw.Exponent >= 0 && pw.Exponent % 1 == 0) { return this.Subtract((Polynomial)pw); }
             }
@@ -101,7 +105,7 @@ namespace Symbolic.Functions
                         }
                         index1++;
                     }
-                    return new Polynomial(Variable, newCoeffs, true);
+                    return new Polynomial(Variable | p.Variable, newCoeffs, true);
                 }
                 else if (other is Power pw && pw.Exponent >= 0 && pw.Exponent % 1 == 0) { return this.Multiply((Polynomial)pw); }
             }
@@ -129,7 +133,7 @@ namespace Symbolic.Functions
 
         public override bool Equals(Function? other) => other is Polynomial p && Coeffs.SequenceEqual(p.Coeffs);
 
-        public override string ToString(string? inner)
+        public override string ToString(string inner)
         {
             // TODO : Rewrite from scratch.
             string str = Coeffs.Select((Constant coeff, int num) =>

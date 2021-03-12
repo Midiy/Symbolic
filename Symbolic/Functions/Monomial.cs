@@ -10,7 +10,7 @@ namespace Symbolic.Functions
         public Constant Coefficient { get; init; }
         public Constant Exponent { get; init; }
 
-        protected Monomial() { }
+        protected Monomial() : base() { }
 
         public Monomial(Symbol variable, Constant coefficient, Constant exponent)
         {
@@ -27,7 +27,7 @@ namespace Symbolic.Functions
         {
             if (other != 0 && Variable == other.Variable && other is Monomial m)
             {
-                if (Exponent == m.Exponent) { return new Monomial(Variable, Coefficient + m.Coefficient, Exponent); }
+                if (Exponent == m.Exponent) { return new Monomial(Variable | m.Variable, Coefficient + m.Coefficient, Exponent); }
                 else { return new Polynomial(this, m); }
             }
             else { return base.Add(other); }
@@ -37,7 +37,7 @@ namespace Symbolic.Functions
         {
             if (other != 0 && Variable == other.Variable && other is Monomial m)
             {
-                if (Exponent == m.Exponent) { return new Monomial(Variable, Coefficient - m.Coefficient, Exponent); }
+                if (Exponent == m.Exponent) { return new Monomial(Variable | m.Variable, Coefficient - m.Coefficient, Exponent); }
                 else { return new Polynomial(this, m.Negate()); }
             }
             else { return base.Subtract(other); }
@@ -45,7 +45,7 @@ namespace Symbolic.Functions
 
         public override Function Multiply(Function other)
         {
-            if (other != 0 && Variable == other.Variable && other is Monomial m) { return new Monomial(Variable, Coefficient * m.Coefficient, Exponent + m.Exponent); }
+            if (other != 0 && Variable == other.Variable && other is Monomial m) { return new Monomial(Variable | m.Variable, Coefficient * m.Coefficient, Exponent + m.Exponent); }
             return base.Multiply(other);
         }
 
