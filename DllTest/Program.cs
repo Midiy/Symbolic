@@ -30,24 +30,24 @@ namespace DllTest
             Console.WriteLine();
 
             Function f3 = (x ^ 3) - 3 * (x ^ 2) + 3 * x - 1;
-            Console.WriteLine($"{f3} , {f3 is Polynomial}");
+            Console.WriteLine($"{f3}, {f3 is Polynomial}");
             f3 += 5;
-            Console.WriteLine($"{f3} , {f3 is Polynomial}");
+            Console.WriteLine($"{f3}, {f3 is Polynomial}");
             f3 += x;
-            Console.WriteLine($"{f3} , {f3 is Polynomial}");
+            Console.WriteLine($"{f3}, {f3 is Polynomial}");
             f3 -= 3 * x;
-            Console.WriteLine($"{f3} , {f3 is Polynomial}");
+            Console.WriteLine($"{f3}, {f3 is Polynomial}");
             f3 += new Monomial(x, 3, 2);
-            Console.WriteLine($"{f3} , {f3 is Polynomial}");
+            Console.WriteLine($"{f3}, {f3 is Polynomial}");
             f3 *= -1;
-            Console.WriteLine($"{f3} , {f3 is Polynomial}");
+            Console.WriteLine($"{f3}, {f3 is Polynomial}");
             f3 *= x;
-            Console.WriteLine($"{f3} , {f3 is Polynomial}");
+            Console.WriteLine($"{f3}, {f3 is Polynomial}");
             f3 *= -x;
-            Console.WriteLine($"{f3} , {f3 is Polynomial}");
+            Console.WriteLine($"{f3}, {f3 is Polynomial}");
             Console.WriteLine(f3.Diff(x));
             f3 *= y;
-            Console.WriteLine($"{f3} , {f3 is Polynomial}");
+            Console.WriteLine($"{f3}, {f3 is Polynomial}");
         }
     }
 }

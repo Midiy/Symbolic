@@ -119,7 +119,7 @@ namespace Symbolic.Functions
 
         public static Function operator ^(Function left, Function right) => left.Raise(right);
 
-        public static implicit operator Function(double d) => new Constant(d);
+        public static implicit operator Function(double d) => (Constant)d;
         #endregion
     }
 }

@@ -6,11 +6,29 @@ namespace Symbolic.Functions
 {
     public class Symbol : Monomial
     {
-        public static readonly Symbol ANY = new Symbol("ANY") { _isAny = true };
+        /// <remarks>
+        /// Symbol.ANY is expected to be ONLY instance of Polynomial with Coeffs set to empty array
+        /// and ONLY instance of Monomial with Coefficient and Exponent set to null.
+        /// This is caused by a circular dependencies between Symbol and Constant classes.
+        /// </remarks>
+        public static readonly Symbol ANY = new Symbol();
 
         public string StrSymbol { get; init; }
 
         private bool _isAny { get; init; } = false;
+
+        /// <summary>
+        /// Constructor only for special value Symbol.ANY.
+        /// </summary>
+        /// <remarks>
+        /// This is a way to work around a circular dependencies between Symbol and Constant classes.
+        /// </remarks>
+        private Symbol() : base()
+        {
+            StrSymbol = "ANY";
+            Variable = this;
+            _isAny = true;
+        }
 
         public Symbol(string strSymbol)
         {

@@ -93,7 +93,7 @@ namespace Symbolic.Functions
                 {
                     int leftLen = Coeffs.Count();
                     int rightLen = p.Coeffs.Count();
-                    Constant[] newCoeffs = Enumerable.Repeat(new Constant(0), leftLen + rightLen - 1).ToArray();
+                    Constant[] newCoeffs = Enumerable.Repeat(Constant.Zero, leftLen + rightLen - 1).ToArray();
                     int index1 = 0;
                     foreach (double c1 in Coeffs)
                     {
@@ -189,7 +189,7 @@ namespace Symbolic.Functions
         public static explicit operator Polynomial(Power power)
         {
             if (power.Exponent < 0 && power.Exponent % 1 != 0) { throw new InvalidCastException(); }
-            return new Polynomial(power.Variable, Enumerable.Repeat(new Constant(0), (int)power.Exponent).Prepend(1));
+            return new Polynomial(power.Variable, Enumerable.Repeat(Constant.Zero, (int)power.Exponent).Prepend(1));
         }
     }
 }

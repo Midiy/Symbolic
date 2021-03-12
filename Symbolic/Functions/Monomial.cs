@@ -16,7 +16,7 @@ namespace Symbolic.Functions
         {
             (Coefficient, Exponent) = (coefficient, exponent);
             Variable = Exponent == 0 ? Symbol.ANY : variable;
-            Coeffs = Enumerable.Repeat(new Constant(0), (int)Exponent).Append(Coefficient);
+            Coeffs = Enumerable.Repeat(Constant.Zero, (int)Exponent).Append(Coefficient);
         }
 
         public override double GetValue(double variableValue) => Coefficient * Math.Pow(variableValue, Exponent);

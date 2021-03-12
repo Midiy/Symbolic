@@ -4,10 +4,14 @@ namespace Symbolic.Functions
 {
     public class Constant : Monomial, IComparable<Constant>, IComparable<double>
     {
-        public static readonly Constant E = Math.E;
-        public static readonly Constant PI = Math.PI;
-        public static readonly Constant PositiveInfinity = double.PositiveInfinity;
-        public static readonly Constant NegativeInfinity = double.NegativeInfinity;
+        // Shouldn't use implicit conversion operator here to avoid circular references.
+        public static readonly Constant E                = new Constant(Math.E);
+        public static readonly Constant PI               = new Constant(Math.PI);
+        public static readonly Constant PositiveInfinity = new Constant(double.PositiveInfinity);
+        public static readonly Constant NegativeInfinity = new Constant(double.NegativeInfinity);
+        public static readonly Constant Zero             = new Constant(0);
+        public static readonly Constant One              = new Constant(1);
+        public static readonly Constant MinusOne         = new Constant(-1);
 
         public double Value { get; init; }
 
@@ -102,7 +106,18 @@ namespace Symbolic.Functions
 
         public static implicit operator double(Constant c) => c.Value;
 
-        public static implicit operator Constant(double d) => new Constant(d);
+        public static implicit operator Constant(double d) => d switch
+                                                              {
+                                                                  // Handling trivial and most common cases to reduce number of memory allocations and objects in heap.
+                                                                  0 => Zero,
+                                                                  1 => One,
+                                                                  -1 => MinusOne,
+                                                                  Math.E => E,
+                                                                  Math.PI => PI,
+                                                                  double.PositiveInfinity => PositiveInfinity,
+                                                                  double.NegativeInfinity => NegativeInfinity,
+                                                                  _ => new Constant(d)
+                                                              };
         #endregion
     }
 }
