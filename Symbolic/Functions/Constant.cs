@@ -26,11 +26,29 @@ namespace Symbolic.Functions
 
         public override Constant Negate() => -Value;
 
-        public override Function Add(Function other) => other is Constant c ? Value + c.Value : base.Add(other);
+        public override Function Add(Function other)
+        {
+            if (Value == 0) { return other; }
+            else if (other is Constant c) { return Value + c.Value; }
+            else { return base.Add(other); }
+        }
 
-        public override Function Subtract(Function other) => other is Constant c ? Value - c.Value : base.Subtract(other);
+        public override Function Subtract(Function other)
+        {
+            if (Value == 0) { return other.Negate(); }
+            else if (other is Constant c) { return Value - c.Value; }
+            else { return base.Subtract(other);
+}
+        }
 
-        public override Function Multiply(Function other) => other is Constant c ? Value * c.Value : base.Multiply(other);
+        public override Function Multiply(Function other)
+        {
+            if (Value == 0) { return 0; }
+            else if (Value == 1) { return other; }
+            else if (Value == -1) { return other.Negate(); }
+            else if (other is Constant c) { return Value * c.Value; }
+            else { return base.Multiply(other); }
+        }
 
         public override Function Divide(Function other)
         {
@@ -43,7 +61,13 @@ namespace Symbolic.Functions
             else { return base.Divide(other); }
         }
 
-        public override Function Raise(Function other) => other is Constant c ? Math.Pow(this, c) : base.Multiply(other);
+        public override Function Raise(Function other)
+        {
+            if (Value == 0) { return other == 0 ? throw new ArithmeticException() : 0; }
+            else if (Value == 1) { return 1; }
+            else if (other is Constant c) { return Math.Pow(this, c); }
+            else { return base.Multiply(other); }
+        }
 
         public override Function ApplyTo(Function _) => this;
 
