@@ -30,5 +30,7 @@
             if (Inner is Symbol) { return Outer.Integrate(variable); }
             else { throw new System.NotImplementedException(); }
         }
+
+        protected override int _getHashCodePart2() => unchecked(47 * Outer.GetHashCode() + 53 * Inner.GetHashCode());
     }
 }

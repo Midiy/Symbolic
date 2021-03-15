@@ -41,5 +41,7 @@
         protected override Function _diff(Symbol variable) => Left.Diff(variable) + Right.Diff(variable);
 
         protected override Function _integrate(Symbol variable) => Left.Integrate(variable) + Right.Integrate(variable);
+
+        protected override int _getHashCodePart1() => Left.GetHashCode() + Right.GetHashCode();
     }
 }

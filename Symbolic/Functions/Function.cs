@@ -8,6 +8,8 @@ namespace Symbolic.Functions
         public Symbol Variable { get; init; }
         public bool HasAllIntegralsKnown { get; init; } = false;
 
+        protected int? _hashCode;
+
         protected Function() => Variable = Symbol.ANY;
 
         public Function(Symbol variable) => Variable = variable;
@@ -94,6 +96,8 @@ namespace Symbolic.Functions
 
         public override bool Equals(object? obj) => obj is Function f && this.Equals(f);
 
+        public override int GetHashCode() => _hashCode ??= unchecked(41 * this.GetType().GetHashCode() + _getHashCodePart1());
+
         public virtual string ToString(string inner) => $"Unknown function of {inner}";
 
         public override string ToString() => ToString(Variable.ToString());
@@ -102,10 +106,14 @@ namespace Symbolic.Functions
 
         protected abstract Function _integrate(Symbol variable);
 
-        #region Operators
-        public static bool operator ==(Function left, Function right) => (left is null && right is null) || (left is not null && left.Equals(right));
+        protected virtual int _getHashCodePart1() => unchecked(43 * Variable.GetHashCode() + _getHashCodePart2());
 
-        public static bool operator !=(Function left, Function right) => !(left == right);
+        protected virtual int _getHashCodePart2() => 0;
+
+        #region Operators
+        public static bool operator ==(Function? left, Function? right) => (left is null && right is null) || (left is not null && left.Equals(right));
+
+        public static bool operator !=(Function? left, Function? right) => !(left == right);
 
         public static Function operator -(Function inner) => inner.Negate();
 

@@ -186,6 +186,8 @@ namespace Symbolic.Functions
             else { return new Polynomial(Variable, Coeffs.Select((Constant coeff, int num) => coeff / (num + 1)).Prepend(0), true); }
         }
 
+        protected override int _getHashCodePart2() => 47 * Constant.GetEnumerableHashCode(Coeffs);
+
         public static explicit operator Polynomial(Power power)
         {
             if (power.Exponent < 0 && power.Exponent % 1 != 0) { throw new InvalidCastException(); }

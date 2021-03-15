@@ -12,10 +12,15 @@ namespace DllTest
             Symbol x = new Symbol("x");
             Symbol y = new Symbol("y");
 
+            Console.WriteLine(new Sin(x).GetHashCode() == new Sin(x).GetHashCode());
+            Console.WriteLine(new Sin(x).GetHashCode() == new Sin(y).GetHashCode());
+            Console.WriteLine((3 * (x ^ 2) - x + 5).GetHashCode() == new Polynomial(x, 3, -1, 5).GetHashCode());
+            Console.WriteLine((3 * (x ^ 2) - x + 5).GetHashCode() == new Polynomial(x, 3, -1, 4).GetHashCode());
+            Console.WriteLine();
+
             Function fi = ((x ^ 3) * new Sin(x)).Integrate(x);
             Console.WriteLine(fi);
             Console.WriteLine();
-
 
             Function f1 = (new Cos(x).ApplyTo(new Ln(x)) + (x ^ 3)) * (x ^ 2) / new Power(x, 2);
             Console.WriteLine(f1);

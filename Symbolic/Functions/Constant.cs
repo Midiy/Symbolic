@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Symbolic.Functions
 {
@@ -87,9 +89,13 @@ namespace Symbolic.Functions
 
         public override string ToString() => Value.ToString();
 
+        public static int GetEnumerableHashCode(IEnumerable<Constant> enumerable) => enumerable.Aggregate(0, (int acc, Constant curr) => unchecked(acc * 47 + curr.GetHashCode()));
+
         protected override Function _diff(Symbol variable) => 0;
 
         protected override Function _integrate(Symbol variable) => this * variable;
+        
+        protected override int _getHashCodePart1() => Value.GetHashCode();
 
         #region Operators
         public static Constant operator -(Constant inner) => -inner.Value;

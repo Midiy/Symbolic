@@ -39,5 +39,7 @@
         protected override Function _diff(Symbol variable) => -Inner.Diff(variable);
 
         protected override Function _integrate(Symbol variable) => -Inner.Integrate(variable);
+
+        protected override int _getHashCodePart1() => Inner.GetHashCode();
     }
 }

@@ -88,6 +88,8 @@ namespace Symbolic.Functions
             else { return new Monomial(Variable, Coefficient / (Exponent + 1), Exponent + 1); }
         }
 
+        protected override int _getHashCodePart2() => unchecked(47 * Coefficient.GetHashCode() + 53 * Exponent.GetHashCode());
+
         public static explicit operator Monomial(Power power)
         {
             if (power.Exponent < 0 && power.Exponent % 1 != 0) { throw new InvalidCastException(); }

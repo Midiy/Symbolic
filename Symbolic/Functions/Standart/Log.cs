@@ -23,5 +23,7 @@ namespace Symbolic.Functions.Standart
         protected override Function _diff(Symbol _) => 1 / (new Ln(Symbol.ANY).ApplyTo(Base) * Variable);
 
         protected override Function _integrate(Symbol _) => (Variable * new Ln(Variable) - Variable) / new Ln(Symbol.ANY).ApplyTo(Base);
+
+        protected override int _getHashCodePart2() => unchecked(47 * Base.GetHashCode());
     }
 }

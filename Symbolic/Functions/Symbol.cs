@@ -7,8 +7,8 @@ namespace Symbolic.Functions
     public class Symbol : Monomial
     {
         /// <remarks>
-        /// Symbol.ANY is expected to be ONLY instance of Polynomial with Coeffs set to empty array
-        /// and ONLY instance of Monomial with Coefficient and Exponent set to null.
+        /// Symbol.ANY is expected to be the ONLY instance of Polynomial with Coeffs set to empty array
+        /// and the ONLY instance of Monomial with Coefficient and Exponent set to null.
         /// This is caused by a circular dependencies between Symbol and Constant classes.
         /// </remarks>
         public static readonly Symbol ANY = new Symbol();
@@ -127,7 +127,9 @@ namespace Symbolic.Functions
         protected override Constant _diff(Symbol _) => 1;
 
         protected override Function _integrate(Symbol _) => (this ^ 2) / 2;
-
+        
+        protected override int _getHashCodePart1() => StrSymbol.GetHashCode();
+        
         public static Symbol operator |(Symbol left, Symbol right) => (left is null || left._isAny) ? right : left;
     }
 }

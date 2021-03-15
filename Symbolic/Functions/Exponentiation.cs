@@ -32,5 +32,7 @@ namespace Symbolic.Functions
         protected override Function _diff(Symbol _) => throw new NotImplementedException();
 
         protected override Function _integrate(Symbol _) => throw new NotImplementedException();
+
+        protected override int _getHashCodePart1() => unchecked(43 * Base.GetHashCode() + 47 * Exponent.GetHashCode());
     }
 }

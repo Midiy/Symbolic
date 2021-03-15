@@ -58,5 +58,7 @@ namespace Symbolic.Functions.Standart
         protected override Function _diff(Symbol _) => Exponent * (Variable ^ (Exponent - 1));
 
         protected override Function _integrate(Symbol _) => (Variable ^ (Exponent + 1)) / (Exponent + 1);
+
+        protected override int _getHashCodePart2() => unchecked(47 * Exponent.GetHashCode());
     }
 }

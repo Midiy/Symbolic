@@ -36,5 +36,7 @@
             if (Right is Constant c) { return Left.Integrate(variable) / c; }
             else { throw new System.NotImplementedException(); }
         }
+
+        protected override int _getHashCodePart1() => unchecked(43 * Left.GetHashCode() + 47 * Right.GetHashCode());
     }
 }

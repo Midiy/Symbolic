@@ -73,5 +73,7 @@ namespace Symbolic.Functions
             }
             else { throw new System.NotImplementedException(); }
         }
+
+        protected override int _getHashCodePart1() => Left.GetHashCode() + Right.GetHashCode();
     }
 }

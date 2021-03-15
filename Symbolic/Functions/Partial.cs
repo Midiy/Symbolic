@@ -53,6 +53,8 @@ namespace Symbolic.Functions
 
         protected override Partial _integrate(Symbol variable) => _transform((Function f) => f.Integrate(variable));
 
+        protected override int _getHashCodePart2() => Parts.Sum(((Function func, Constant leftBound, Constant rightBound) t) => unchecked(47 * t.func.GetHashCode() + 53 * t.leftBound.GetHashCode() + 59 * t.rightBound.GetHashCode()));
+
         private Partial _transform(Func<Function, Function> transformer) => new Partial(Parts.Select(((Function func, Constant leftBound, Constant rightBound) t) => (transformer(t.func), t.leftBound, t.rightBound)));
 
         private Partial _transform(Partial other, Func<Function, Function, Function> transformer)
