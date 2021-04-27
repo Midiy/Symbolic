@@ -1,5 +1,9 @@
 ﻿using System;
 
+using Symbolic.Utils;
+
+using static Symbolic.Utils.FunctionFactory;
+
 namespace Symbolic.Functions.Standart
 {
     public class Power : Function
@@ -18,7 +22,7 @@ namespace Symbolic.Functions.Standart
         {
             if (Variable == other.Variable)
             {
-                if (other is Power p && Exponent == p.Exponent && Exponent >= 0 && Exponent % 1 == 0) { return new Monomial(Variable, 2, Exponent); }
+                if (other is Power p && Exponent == p.Exponent && Exponent >= 0 && Exponent % 1 == 0) { return Monomial(Variable, 2, Exponent); }
                 else if (other is Monomial m && Exponent == m.Exponent) { return m.Add(this); }
             }
             return base.Add(other);
@@ -39,17 +43,17 @@ namespace Symbolic.Functions.Standart
                     if (c == 0) { return 0; }
                     else if (c == 1) { return this; }
                     else if (c == -1) { return this.Negate(); }
-                    else { return new Monomial(Variable, c, Exponent); }
+                    else { return Monomial(Variable, c, Exponent); }
                 }
-                else if (other is Symbol) { return new Power(Variable, Exponent + 1); }
-                else if (other is Power pw) { return new Power(Variable, Exponent + pw.Exponent); }
+                else if (other is Symbol) { return Power(Variable, Exponent + 1); }
+                else if (other is Power pw) { return Power(Variable, Exponent + pw.Exponent); }
                 else if (other is Monomial m) { return m.Multiply(this); }
                 else if (other is Polynomial p) { return p.Multiply(this); }
             }
             return base.Multiply(other);
         }
 
-        public override Power WithVariable(Symbol newVariable) => new Power(newVariable, Exponent);
+        public override Power WithVariable(Symbol newVariable) => Power(newVariable, Exponent);
 
         public override bool Equals(Function? other) => other is Power p && p.Exponent == Exponent && other.Variable == Variable;
 
@@ -59,6 +63,6 @@ namespace Symbolic.Functions.Standart
 
         protected override Function _integrate(Symbol _) => (Variable ^ (Exponent + 1)) / (Exponent + 1);
 
-        protected override int _getHashCodePart2() => unchecked(47 * Exponent.GetHashCode());
+        protected override HashCodeCombiner _addHashCodeParams(HashCodeCombiner combiner) => combiner.Add(Exponent);
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System;
 
+using static Symbolic.Utils.FunctionFactory;
+
 namespace Symbolic.Functions.Standart
 {
     public class Exp : Function
@@ -8,7 +10,7 @@ namespace Symbolic.Functions.Standart
 
         public override double GetValue(double variableValue) => Math.Exp(variableValue);
 
-        public override Exp WithVariable(Symbol newVariable) => new Exp(newVariable);
+        public override Exp WithVariable(Symbol newVariable) => Exp(newVariable);
 
         public override bool Equals(Function? other) => other is Exp && other.Variable == Variable;
 

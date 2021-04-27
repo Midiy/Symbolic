@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Symbolic.Functions.Standart;
+using Symbolic.Utils;
+
+using static Symbolic.Utils.FunctionFactory;
 
 namespace Symbolic.Functions
 {
@@ -47,7 +50,7 @@ namespace Symbolic.Functions
 
         public override double GetValue(double variableValue) => Coeffs.Select((Constant coeff, int num) => coeff * Math.Pow(variableValue, num)).Aggregate((Constant acc, Constant curr) => acc + curr);
 
-        public override Polynomial Negate() => new Polynomial(Variable, Coeffs.Select((Constant c) => -c), true);
+        public override Polynomial Negate() => Polynomial(Variable, Coeffs.Select((Constant c) => -c), true);
 
         public override Function Add(Function other)
         {
@@ -60,7 +63,7 @@ namespace Symbolic.Functions
                     IEnumerable<Constant> newCoeffs = Coeffs.Zip(p.Coeffs, (Constant c1, Constant c2) => c1 + c2);
                     if (count1 > count2) { newCoeffs = newCoeffs.Concat(Coeffs.Skip(count2)); }
                     else { newCoeffs = newCoeffs.Concat(p.Coeffs.Skip(count1)); }
-                    return new Polynomial(Variable | p.Variable, newCoeffs, true);
+                    return Polynomial(Variable | p.Variable, newCoeffs, true);
                 }
                 else if (other is Power pw && pw.Exponent >= 0 && pw.Exponent % 1 == 0) { return this.Add((Polynomial)pw); }
             }
@@ -78,7 +81,7 @@ namespace Symbolic.Functions
                     IEnumerable<Constant> newCoeffs = Coeffs.Zip(p.Coeffs, (Constant c1, Constant c2) => c1 - c2);
                     if (count1 > count2) { newCoeffs = newCoeffs.Concat(Coeffs.Skip(count2)); }
                     else { newCoeffs = newCoeffs.Concat(p.Coeffs.Skip(count1).Select((Constant c) => -c)); }
-                    return new Polynomial(Variable | p.Variable, newCoeffs, true);
+                    return Polynomial(Variable | p.Variable, newCoeffs, true);
                 }
                 else if (other is Power pw && pw.Exponent >= 0 && pw.Exponent % 1 == 0) { return this.Subtract((Polynomial)pw); }
             }
@@ -105,7 +108,7 @@ namespace Symbolic.Functions
                         }
                         index1++;
                     }
-                    return new Polynomial(Variable | p.Variable, newCoeffs, true);
+                    return Polynomial(Variable | p.Variable, newCoeffs, true);
                 }
                 else if (other is Power pw && pw.Exponent >= 0 && pw.Exponent % 1 == 0) { return this.Multiply((Polynomial)pw); }
             }
@@ -114,7 +117,7 @@ namespace Symbolic.Functions
 
         public override Function Divide(Function other)
         {
-            if (other is Constant c && c != 0) { return new Polynomial(Variable, Coeffs.Select((Constant coeff) => coeff / c), true); }
+            if (other is Constant c && c != 0) { return Polynomial(Variable, Coeffs.Select((Constant coeff) => coeff / c), true); }
             return base.Divide(other);
         }
 
@@ -122,14 +125,14 @@ namespace Symbolic.Functions
         {
             if (other is Constant c && c % 1 == 0)
             {
-                Polynomial result = new Polynomial(Variable, new Constant[] { 1 });
+                Polynomial result = Polynomial(Variable, new Constant[] { 1 });
                 for (int i = 0; i < c; i++) { result = (Polynomial)(result * this); }
                 return result;
             }
             else { return base.Raise(other); }
         }
 
-        public override Function WithVariable(Symbol newVariable) => new Polynomial(newVariable, Coeffs, true);
+        public override Function WithVariable(Symbol newVariable) => Polynomial(newVariable, Coeffs, true);
 
         public override bool Equals(Function? other) => other is Polynomial p && Coeffs.SequenceEqual(p.Coeffs);
 
@@ -173,7 +176,7 @@ namespace Symbolic.Functions
         {
             if (Coeffs.Count() == 1) { return 0; }
             else if (Coeffs.Count() == 2) { return Coeffs.Last(); }
-            else { return new Polynomial(Variable, Coeffs.Skip(1).Select((Constant coeff, int num) => coeff * (num + 1)), true); }
+            else { return Polynomial(Variable, Coeffs.Skip(1).Select((Constant coeff, int num) => coeff * (num + 1)), true); }
         }
 
         protected override Function _integrate(Symbol variable)
@@ -181,17 +184,17 @@ namespace Symbolic.Functions
             if (Coeffs.Count() == 1)
             {
                 if (Coeffs.First() == 0) { return 0; }
-                else { return new Monomial(variable, Coeffs.First(), 1); }
+                else { return Monomial(variable, Coeffs.First(), 1); }
             }
-            else { return new Polynomial(Variable, Coeffs.Select((Constant coeff, int num) => coeff / (num + 1)).Prepend(0), true); }
+            else { return Polynomial(Variable, Coeffs.Select((Constant coeff, int num) => coeff / (num + 1)).Prepend(0), true); }
         }
 
-        protected override int _getHashCodePart2() => 47 * Constant.GetEnumerableHashCode(Coeffs);
+        protected override HashCodeCombiner _addHashCodeParams(HashCodeCombiner combiner) => combiner.AddEnumerable(Coeffs);
 
         public static explicit operator Polynomial(Power power)
         {
-            if (power.Exponent < 0 && power.Exponent % 1 != 0) { throw new InvalidCastException(); }
-            return new Polynomial(power.Variable, Enumerable.Repeat(Constant.Zero, (int)power.Exponent).Prepend(1));
+            if (power.Exponent < 0 || power.Exponent % 1 != 0) { throw new InvalidCastException(); }
+            return Polynomial(power.Variable, Enumerable.Repeat(Constant.Zero, (int)power.Exponent).Prepend(1));
         }
     }
 }

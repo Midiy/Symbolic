@@ -1,19 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+
+using Symbolic.Utils;
+
+using static Symbolic.Utils.FunctionFactory;
 
 namespace Symbolic.Functions
 {
     public class Constant : Monomial, IComparable<Constant>, IComparable<double>
     {
         // Shouldn't use implicit conversion operator here to avoid circular references.
-        public static readonly Constant E                = new Constant(Math.E);
-        public static readonly Constant PI               = new Constant(Math.PI);
-        public static readonly Constant PositiveInfinity = new Constant(double.PositiveInfinity);
-        public static readonly Constant NegativeInfinity = new Constant(double.NegativeInfinity);
-        public static readonly Constant Zero             = new Constant(0);
-        public static readonly Constant One              = new Constant(1);
-        public static readonly Constant MinusOne         = new Constant(-1);
+        public static readonly Constant E                = Constant(Math.E);
+        public static readonly Constant PI               = Constant(Math.PI);
+        public static readonly Constant PositiveInfinity = Constant(double.PositiveInfinity);
+        public static readonly Constant NegativeInfinity = Constant(double.NegativeInfinity);
+        public static readonly Constant Zero             = Constant(0);
+        public static readonly Constant One              = Constant(1);
+        public static readonly Constant MinusOne         = Constant(-1);
 
         public double Value { get; init; }
 
@@ -89,13 +91,13 @@ namespace Symbolic.Functions
 
         public override string ToString() => Value.ToString();
 
-        public static int GetEnumerableHashCode(IEnumerable<Constant> enumerable) => enumerable.Aggregate(0, (int acc, Constant curr) => unchecked(acc * 47 + curr.GetHashCode()));
-
         protected override Function _diff(Symbol variable) => 0;
 
         protected override Function _integrate(Symbol variable) => this * variable;
-        
-        protected override int _getHashCodePart1() => Value.GetHashCode();
+
+        protected override HashCodeCombiner _addHashCodeVariable(HashCodeCombiner combiner) => combiner;
+
+        protected override HashCodeCombiner _addHashCodeParams(HashCodeCombiner combiner) => combiner.Add(Value);
 
         #region Operators
         public static Constant operator -(Constant inner) => -inner.Value;
@@ -115,6 +117,7 @@ namespace Symbolic.Functions
         public static implicit operator Constant(double d) => d switch
                                                               {
                                                                   // Handling trivial and most common cases to reduce number of memory allocations and objects in heap.
+                                                                  // (Not quite actual with caching by Symbols.Utils.FunctionFactory.)
                                                                   0 => Zero,
                                                                   1 => One,
                                                                   -1 => MinusOne,
@@ -122,7 +125,7 @@ namespace Symbolic.Functions
                                                                   Math.PI => PI,
                                                                   double.PositiveInfinity => PositiveInfinity,
                                                                   double.NegativeInfinity => NegativeInfinity,
-                                                                  _ => new Constant(d)
+                                                                  _ => Constant(d)
                                                               };
         #endregion
     }

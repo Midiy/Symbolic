@@ -1,4 +1,6 @@
-﻿namespace Symbolic.Functions
+﻿using Symbolic.Utils;
+
+namespace Symbolic.Functions
 {
     public class Composition : Function
     {
@@ -31,6 +33,6 @@
             else { throw new System.NotImplementedException(); }
         }
 
-        protected override int _getHashCodePart2() => unchecked(47 * Outer.GetHashCode() + 53 * Inner.GetHashCode());
+        protected override HashCodeCombiner _addHashCodeParams(HashCodeCombiner combiner) => combiner.Add(Outer).Add(Inner);
     }
 }

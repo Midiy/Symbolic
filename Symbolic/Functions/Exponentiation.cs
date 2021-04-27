@@ -1,6 +1,8 @@
 ﻿using System;
 
-using Symbolic.Functions.Standart;
+using Symbolic.Utils;
+
+using static Symbolic.Utils.FunctionFactory;
 
 namespace Symbolic.Functions
 {
@@ -15,7 +17,7 @@ namespace Symbolic.Functions
             if (Base.Variable == Exponent.Variable) { Variable = Base.Variable | Exponent.Variable; }
         }
 
-        public override Function Diff(Symbol variable) => this * (Exponent.Diff(variable) * new Ln(Variable).ApplyTo(Base) + Exponent * Base.Diff(variable) / Base);
+        public override Function Diff(Symbol variable) => this * (Exponent.Diff(variable) * Ln(Base) + Exponent * Base.Diff(variable) / Base);
 
         public override double GetValue(double variableValue) => Math.Pow(Base.GetValue(variableValue), Exponent.GetValue(variableValue));
 
@@ -33,6 +35,8 @@ namespace Symbolic.Functions
 
         protected override Function _integrate(Symbol _) => throw new NotImplementedException();
 
-        protected override int _getHashCodePart1() => unchecked(43 * Base.GetHashCode() + 47 * Exponent.GetHashCode());
+        protected override HashCodeCombiner _addHashCodeVariable(HashCodeCombiner combiner) => combiner;
+
+        protected override HashCodeCombiner _addHashCodeParams(HashCodeCombiner combiner) => combiner.Add(Base).Add(Exponent);
     }
 }

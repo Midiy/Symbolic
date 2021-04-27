@@ -3,26 +3,37 @@
 using Symbolic.Functions;
 using Symbolic.Functions.Standart;
 
+using static Symbolic.Utils.FunctionFactory;
+
 namespace DllTest
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
-            Symbol x = new Symbol("x");
-            Symbol y = new Symbol("y");
+            Symbol x = Symbol("x");
+            Symbol y = Symbol("y");
 
             Console.WriteLine(new Sin(x).GetHashCode() == new Sin(x).GetHashCode());
+            Console.WriteLine(new Sin(x).GetHashCode() == Sin(x).GetHashCode());
+            Console.WriteLine(new Sin(x).GetHashCode() == Sin("x").GetHashCode());
             Console.WriteLine(new Sin(x).GetHashCode() == new Sin(y).GetHashCode());
             Console.WriteLine((3 * (x ^ 2) - x + 5).GetHashCode() == new Polynomial(x, 3, -1, 5).GetHashCode());
             Console.WriteLine((3 * (x ^ 2) - x + 5).GetHashCode() == new Polynomial(x, 3, -1, 4).GetHashCode());
             Console.WriteLine();
 
-            Function fi = ((x ^ 3) * new Sin(x)).Integrate(x);
+            // It is recommended to use FunctionFactory methods because of the results caching
+            // (which, however, could be disabled by setting Symbolic.Utils.Properties.UseCaching to false).
+            Console.WriteLine(object.ReferenceEquals(Cos(x), Cos("x")));
+            Console.WriteLine(object.ReferenceEquals(Cos(Symbolic.Functions.Symbol.ANY).ApplyTo(Sin(x)), Cos(Sin(x))));
+            Console.WriteLine(object.ReferenceEquals(new Cos(x), Cos(x)));
+            Console.WriteLine();
+
+            Function fi = ((x ^ 3) * Sin(x)).Integrate(x);
             Console.WriteLine(fi);
             Console.WriteLine();
 
-            Function f1 = (new Cos(x).ApplyTo(new Ln(x)) + (x ^ 3)) * (x ^ 2) / new Power(x, 2);
+            Function f1 = (Cos(Ln(x)) + (x ^ 3)) * (x ^ 2) / Power(x, 2);
             Console.WriteLine(f1);
             Console.WriteLine(f1.Diff(x));
             Console.WriteLine(f1.Diff(y));
@@ -42,7 +53,7 @@ namespace DllTest
             Console.WriteLine($"{f3}, {f3 is Polynomial}");
             f3 -= 3 * x;
             Console.WriteLine($"{f3}, {f3 is Polynomial}");
-            f3 += new Monomial(x, 3, 2);
+            f3 += Monomial(x, 3, 2);
             Console.WriteLine($"{f3}, {f3 is Polynomial}");
             f3 *= -1;
             Console.WriteLine($"{f3}, {f3 is Polynomial}");

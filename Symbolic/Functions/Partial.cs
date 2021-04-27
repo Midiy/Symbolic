@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using Symbolic.Utils;
+
 namespace Symbolic.Functions
 {
     public class Partial : Function
@@ -44,6 +46,7 @@ namespace Symbolic.Functions
 
         public override bool Equals(Function? other) => other is Partial p && Parts.SequenceEqual(p.Parts);
 
+        // TODO : String representation.
         public override string ToString(string inner)
         {
             return base.ToString(inner);
@@ -53,7 +56,16 @@ namespace Symbolic.Functions
 
         protected override Partial _integrate(Symbol variable) => _transform((Function f) => f.Integrate(variable));
 
-        protected override int _getHashCodePart2() => Parts.Sum(((Function func, Constant leftBound, Constant rightBound) t) => unchecked(47 * t.func.GetHashCode() + 53 * t.leftBound.GetHashCode() + 59 * t.rightBound.GetHashCode()));
+        protected override HashCodeCombiner _addHashCodeVariable(HashCodeCombiner combiner) => combiner;
+
+        protected override HashCodeCombiner _addHashCodeParams(HashCodeCombiner combiner)
+        {
+            return combiner.Add(Parts.Select(((Function func, Constant leftBound, Constant rightBound) t) => new HashCodeCombiner(2).Add(t.func)
+                                                                                                                                    .Add(t.leftBound)
+                                                                                                                                    .Add(t.rightBound)
+                                                                                                                                    .Combine())
+                                     .ToArray());
+        }
 
         private Partial _transform(Func<Function, Function> transformer) => new Partial(Parts.Select(((Function func, Constant leftBound, Constant rightBound) t) => (transformer(t.func), t.leftBound, t.rightBound)));
 

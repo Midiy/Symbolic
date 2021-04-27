@@ -1,4 +1,6 @@
-﻿namespace Symbolic.Functions
+﻿using Symbolic.Utils;
+
+namespace Symbolic.Functions
 {
     public class Sum : Function
     {
@@ -42,6 +44,8 @@
 
         protected override Function _integrate(Symbol variable) => Left.Integrate(variable) + Right.Integrate(variable);
 
-        protected override int _getHashCodePart1() => Left.GetHashCode() + Right.GetHashCode();
+        protected override HashCodeCombiner _addHashCodeVariable(HashCodeCombiner combiner) => combiner;
+
+        protected override HashCodeCombiner _addHashCodeParams(HashCodeCombiner combiner) => combiner.Add(Left, Right);
     }
 }

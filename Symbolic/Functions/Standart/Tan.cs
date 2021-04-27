@@ -1,5 +1,7 @@
 ﻿using System;
 
+using static Symbolic.Utils.FunctionFactory;
+
 namespace Symbolic.Functions.Standart
 {
     public class Tan : Function
@@ -8,14 +10,14 @@ namespace Symbolic.Functions.Standart
 
         public override double GetValue(double variableValue) => Math.Tan(variableValue);
 
-        public override Tan WithVariable(Symbol newVariable) => new Tan(newVariable);
+        public override Tan WithVariable(Symbol newVariable) => Tan(newVariable);
 
         public override bool Equals(Function? other) => other is Tan && other.Variable == Variable;
 
         public override string ToString(string inner) => $"tan({inner})";
         
-        protected override Function _diff(Symbol _) => 1 / (new Cos(Variable) ^ 2);
+        protected override Function _diff(Symbol _) => 1 / (Cos(Variable) ^ 2);
 
-        protected override Function _integrate(Symbol _) => -new Ln(Symbol.ANY).ApplyTo(new Abs(Symbol.ANY).ApplyTo(new Cos(Variable)));
+        protected override Function _integrate(Symbol _) => -Ln(Abs(Cos(Variable)));
     }
 }

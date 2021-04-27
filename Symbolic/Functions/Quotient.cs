@@ -1,4 +1,6 @@
-﻿namespace Symbolic.Functions
+﻿using Symbolic.Utils;
+
+namespace Symbolic.Functions
 {
     public class Quotient : Function
     {
@@ -37,6 +39,8 @@
             else { throw new System.NotImplementedException(); }
         }
 
-        protected override int _getHashCodePart1() => unchecked(43 * Left.GetHashCode() + 47 * Right.GetHashCode());
+        protected override HashCodeCombiner _addHashCodeVariable(HashCodeCombiner combiner) => combiner;
+
+        protected override HashCodeCombiner _addHashCodeParams(HashCodeCombiner combiner) => combiner.Add(Left).Add(Right);
     }
 }

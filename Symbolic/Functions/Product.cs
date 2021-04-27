@@ -1,4 +1,5 @@
 ﻿using Symbolic.Functions.Standart;
+using Symbolic.Utils;
 
 namespace Symbolic.Functions
 {
@@ -49,6 +50,7 @@ namespace Symbolic.Functions
         {
             if (HasAllIntegralsKnown)
             {
+                // Integration by parts.
                 Function u, dv;
                 if (Left is Polynomial || Left is Power pw && pw.Exponent >= 0 && pw.Exponent % 1 == 0)
                 {
@@ -74,6 +76,8 @@ namespace Symbolic.Functions
             else { throw new System.NotImplementedException(); }
         }
 
-        protected override int _getHashCodePart1() => Left.GetHashCode() + Right.GetHashCode();
+        protected override HashCodeCombiner _addHashCodeVariable(HashCodeCombiner combiner) => combiner;
+
+        protected override HashCodeCombiner _addHashCodeParams(HashCodeCombiner combiner) => combiner.Add(Left, Right);
     }
 }

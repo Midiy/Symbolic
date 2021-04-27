@@ -1,5 +1,7 @@
 ﻿using System;
 
+using static Symbolic.Utils.FunctionFactory;
+
 namespace Symbolic.Functions.Standart
 {
     public class Log10 : Log
@@ -8,7 +10,7 @@ namespace Symbolic.Functions.Standart
 
         public override double GetValue(double variableValue) => Math.Log10(variableValue);
 
-        public override Log10 WithVariable(Symbol newVariable) => new Log10(newVariable);
+        public override Log10 WithVariable(Symbol newVariable) => Log10(newVariable);
 
         public override string ToString(string inner) => $"log10({inner})";
     }

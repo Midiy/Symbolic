@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Linq;
 
+using Symbolic.Utils;
+using static Symbolic.Utils.FunctionFactory;
+
 namespace Symbolic.Functions
 {
     public abstract class Function : IEquatable<Function>
@@ -26,7 +29,7 @@ namespace Symbolic.Functions
             return antideriv.GetValue(upperBound) - antideriv.GetValue(lowerBound);
         }
 
-        public virtual Function Negate() => new Negation(this);
+        public virtual Function Negate() => Negation(this);
 
         public virtual Function Add(Function other)
         {
@@ -36,7 +39,7 @@ namespace Symbolic.Functions
             { 
                 return new Partial(p.Parts.Select(((Function func, Constant leftBound, Constant rightBound) t) => (this.Add(t.func), t.leftBound, t.rightBound)));
             }
-            else { return new Sum(this, other); }
+            else { return Sum(this, other); }
         }
 
         public virtual Function Subtract(Function other)
@@ -55,7 +58,7 @@ namespace Symbolic.Functions
             {
                 return new Partial(p.Parts.Select(((Function func, Constant leftBound, Constant rightBound) t) => (this.Multiply(t.func), t.leftBound, t.rightBound)));
             }
-            else { return new Product(this, other); }
+            else { return Product(this, other); }
         }
 
         public virtual Function Divide(Function other)
@@ -67,19 +70,19 @@ namespace Symbolic.Functions
             {
                 return new Partial(p.Parts.Select(((Function func, Constant leftBound, Constant rightBound) t) => (this.Divide(t.func), t.leftBound, t.rightBound)));
             }
-            else { return new Quotient(this, other); }
+            else { return Quotient(this, other); }
         }
 
         public virtual Function Raise(Function other)
         {
             if (other == 0 && this == 0) { throw new ArithmeticException(); }
             else if (other == 1) { return this; }
-            else if (other is Constant c) { return new Standart.Power(Symbol.ANY, c).ApplyTo(this); }
+            else if (other is Constant c) { return Power(this, c); }
             else if (other is Partial p)
             {
                 return new Partial(p.Parts.Select(((Function func, Constant leftBound, Constant rightBound) t) => (this.Raise(t.func), t.leftBound, t.rightBound)));
             }
-            return new Exponentiation(this, other);
+            return Exponentiation(this, other);
         }
 
         public virtual Function ApplyTo(Function inner) => inner switch
@@ -87,7 +90,7 @@ namespace Symbolic.Functions
                                                                Constant c => GetValue(c),
                                                                Symbol s => WithVariable(s),
                                                                Partial p => new Partial(p.Parts.Select(((Function func, Constant leftBound, Constant rightBound) t) => (this.ApplyTo(t.func), t.leftBound, t.rightBound))),
-                                                               _ => new Composition(this, inner)
+                                                               _ => Composition(this, inner)
                                                            };
 
         public abstract Function WithVariable(Symbol newVariable);
@@ -96,7 +99,7 @@ namespace Symbolic.Functions
 
         public override bool Equals(object? obj) => obj is Function f && this.Equals(f);
 
-        public override int GetHashCode() => _hashCode ??= unchecked(41 * this.GetType().GetHashCode() + _getHashCodePart1());
+        public override int GetHashCode() => _hashCode ??= _addHashCodeParams(_addHashCodeVariable(_addHashCodeType(new HashCodeCombiner()))).Combine();
 
         public virtual string ToString(string inner) => $"Unknown function of {inner}";
 
@@ -106,9 +109,11 @@ namespace Symbolic.Functions
 
         protected abstract Function _integrate(Symbol variable);
 
-        protected virtual int _getHashCodePart1() => unchecked(43 * Variable.GetHashCode() + _getHashCodePart2());
+        protected virtual HashCodeCombiner _addHashCodeType(HashCodeCombiner combiner) => combiner.AddType(this.GetType());
 
-        protected virtual int _getHashCodePart2() => 0;
+        protected virtual HashCodeCombiner _addHashCodeVariable(HashCodeCombiner combiner) => combiner.Add(Variable);
+
+        protected virtual HashCodeCombiner _addHashCodeParams(HashCodeCombiner combiner) => combiner;
 
         #region Operators
         public static bool operator ==(Function? left, Function? right) => (left is null && right is null) || (left is not null && left.Equals(right));
