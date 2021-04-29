@@ -38,6 +38,10 @@ namespace Symbolic.Functions
 
         public override string ToString() => $"-({Inner})";
 
+        public override string ToPrefixString(string inner) => $"* ( -1 ) {Inner.ToPrefixString(inner)}";   // To avoid ambiguity with unary and binary minus.
+
+        public override string ToPrefixString() => $"* ( -1 ) {Inner.ToPrefixString()}";   // To avoid ambiguity with unary and binary minus.
+
         protected override Function _diff(Symbol variable) => -Inner.Diff(variable);
 
         protected override Function _integrate(Symbol variable) => -Inner.Integrate(variable);

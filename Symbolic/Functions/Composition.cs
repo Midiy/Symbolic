@@ -9,7 +9,8 @@ namespace Symbolic.Functions
 
         public Composition(Function outer, Function inner) : base(inner.Variable)
         {
-            (Outer, Inner) = (outer, inner);
+            Outer = outer;
+            Inner = inner;
             HasAllIntegralsKnown = Inner is Symbol && Outer.HasAllIntegralsKnown;
         }
 
@@ -24,6 +25,8 @@ namespace Symbolic.Functions
         public override string ToString(string inner) => Outer.ToString(Inner.ToString(inner));
 
         public override string ToString() => Outer.ToString(Inner.ToString());
+
+        public override string ToPrefixString(string inner) => Outer.ToPrefixString(Inner.ToPrefixString(inner));
 
         protected override Function _diff(Symbol variable) => Outer.Diff(Outer.Variable).ApplyTo(Inner) * Inner.Diff(variable);
 

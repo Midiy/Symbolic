@@ -26,6 +26,7 @@ namespace DllTest
             // (which, however, could be disabled by setting Symbolic.Utils.Properties.UseCaching to false).
             Console.WriteLine(object.ReferenceEquals(Cos(x), Cos("x")));
             Console.WriteLine(object.ReferenceEquals(Cos(Symbolic.Functions.Symbol.ANY).ApplyTo(Sin(x)), Cos(Sin(x))));
+            Console.WriteLine(object.ReferenceEquals(3 * (x ^ 2) - x + 5, Polynomial(x, 3, -1, 5)));
             Console.WriteLine(object.ReferenceEquals(new Cos(x), Cos(x)));
             Console.WriteLine();
 
@@ -64,6 +65,12 @@ namespace DllTest
             Console.WriteLine(f3.Diff(x));
             f3 *= y;
             Console.WriteLine($"{f3}, {f3 is Polynomial}");
+            Console.WriteLine();
+
+            Console.WriteLine(fi.ToPrefixString());
+            Console.WriteLine(f1.ToPrefixString());
+            Console.WriteLine(f2.ToPrefixString());
+            Console.WriteLine(f3.ToPrefixString());
         }
     }
 }

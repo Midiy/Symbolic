@@ -14,6 +14,8 @@ namespace Symbolic.Functions.Standart
 
         public override string ToString(string inner) => $"sqrt({inner})";
 
+        public override string ToPrefixString(string inner) => $"sqrt {inner}";
+
         protected override Function _diff(Symbol _) => 1 / (2 * Sqrt(Variable));
 
         protected override Function _integrate(Symbol _) => 2 * Variable * Sqrt(Variable);

@@ -127,6 +127,10 @@ namespace Symbolic.Functions
 
         public override string ToString() => StrSymbol;
 
+        public override string ToPrefixString(string inner) => inner;
+
+        public override string ToPrefixString() => StrSymbol;
+
         protected override Constant _diff(Symbol _) => 1;
 
         protected override Function _integrate(Symbol _) => (this ^ 2) / 2;

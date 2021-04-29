@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 using Symbolic.Utils;
 
@@ -19,6 +20,8 @@ namespace Symbolic.Functions
 
         public double Value { get; init; }
 
+        private string _prefixStringRepr;
+
         public Constant(double value)
         {
             Variable = Symbol.ANY;
@@ -26,6 +29,11 @@ namespace Symbolic.Functions
             Coefficient = this;
             Exponent = value == 0 ? this : 0;
             Coeffs = new Constant[] { this };
+
+            bool signFlag = value < 0;
+            string[] digits = Math.Abs(value).ToString().ToCharArray().Select((char c) => c.ToString()).ToArray();
+            if (signFlag) { digits[0] = "-" + digits[0]; }
+            _prefixStringRepr = $"( {string.Join(" ", digits)} )";
         }
 
         public override double GetValue(double _) => Value;
@@ -87,9 +95,9 @@ namespace Symbolic.Functions
 
         public override bool Equals(Function? other) => other is Constant c && c.Value == Value;
 
-        public override string ToString(string inner) => ToString();
+        public override string ToString(string _) => Value.ToString();
 
-        public override string ToString() => Value.ToString();
+        public override string ToPrefixString(string _) => _prefixStringRepr;
 
         protected override Function _diff(Symbol variable) => 0;
 

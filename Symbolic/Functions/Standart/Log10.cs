@@ -13,5 +13,7 @@ namespace Symbolic.Functions.Standart
         public override Log10 WithVariable(Symbol newVariable) => Log10(newVariable);
 
         public override string ToString(string inner) => $"log10({inner})";
+
+        public override string ToPrefixString(string inner) => $"log10 {inner}";
     }
 }

@@ -172,6 +172,15 @@ namespace Symbolic.Functions
             return str;
         }
 
+        public override string ToPrefixString(string inner)
+        {
+            // Constructor is used because this monomials are temporary objects that not expected to be cached.
+            IEnumerable<string> monomialReprs = Coeffs.Select((Constant coeff, int num) => new Monomial(Symbol.ANY, coeff, num).ToPrefixString(inner)).Where((string s) => s != "( 0 )");
+            if (!monomialReprs.Any()) { return "( 0 )"; }
+            else if (monomialReprs.Count() == 1) { return monomialReprs.Single(); }
+            else { return string.Join(' ', Enumerable.Repeat('+', monomialReprs.Count() - 1)) + " " + string.Join(' ', monomialReprs); }
+        }
+
         protected override Function _diff(Symbol _)
         {
             if (Coeffs.Count() == 1) { return 0; }

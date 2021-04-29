@@ -59,6 +59,8 @@ namespace Symbolic.Functions.Standart
 
         public override string ToString(string inner) => $"({inner})^({Exponent})";
 
+        public override string ToPrefixString(string inner) => $"^ {inner} {Exponent.ToPrefixString()}";
+
         protected override Function _diff(Symbol _) => Exponent * (Variable ^ (Exponent - 1));
 
         protected override Function _integrate(Symbol _) => (Variable ^ (Exponent + 1)) / (Exponent + 1);

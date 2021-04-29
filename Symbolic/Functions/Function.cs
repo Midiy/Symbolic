@@ -105,6 +105,10 @@ namespace Symbolic.Functions
 
         public override string ToString() => ToString(Variable.ToString());
 
+        public virtual string ToPrefixString(string inner) => $"func {inner}";
+
+        public virtual string ToPrefixString() => ToPrefixString(Variable.ToPrefixString());
+
         protected abstract Function _diff(Symbol variable);
 
         protected abstract Function _integrate(Symbol variable);

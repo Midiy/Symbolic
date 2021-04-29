@@ -24,6 +24,8 @@ namespace Symbolic.Functions.Standart
 
         public override string ToString(string inner) => $"log({inner}, {Base})";
 
+        public override string ToPrefixString(string inner) => $"log {inner} {Base.ToPrefixString()}";
+
         protected override Function _diff(Symbol _) => 1 / (Ln(Base) * Variable);
 
         protected override Function _integrate(Symbol _) => (Variable * Ln(Variable) - Variable) / Ln(Base);

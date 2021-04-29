@@ -16,6 +16,8 @@ namespace Symbolic.Functions.Standart
 
         public override string ToString(string inner) => $"exp({inner})";
 
+        public override string ToPrefixString(string inner) => $"exp {inner}";
+
         protected override Exp _diff(Symbol _) => this;
 
         protected override Function _integrate(Symbol _) => this;

@@ -16,6 +16,8 @@ namespace Symbolic.Functions.Standart
 
         public override string ToString(string inner) => $"cot({inner})";
 
+        public override string ToPrefixString(string inner) => $"cot {inner}";
+
         protected override Function _diff(Symbol _) => -1 / (Sin(Variable) ^ 2);
 
         protected override Function _integrate(Symbol _) => Ln(Abs(Sin(Variable)));

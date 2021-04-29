@@ -16,6 +16,8 @@ namespace Symbolic.Functions.Standart
 
         public override string ToString(string inner) => $"cos({inner})";
 
+        public override string ToPrefixString(string inner) => $"cos {inner}";
+
         protected override Function _diff(Symbol _) => -Sin(Variable);
 
         protected override Function _integrate(Symbol _) => Sin(Variable);

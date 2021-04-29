@@ -31,6 +31,10 @@ namespace Symbolic.Functions
 
         public override string ToString() => $"({Left}) / ({Right})";
 
+        public override string ToPrefixString(string inner) => $"/ {Left.ToPrefixString(inner)} {Right.ToPrefixString(inner)}";
+
+        public override string ToPrefixString() => $"/ {Left.ToPrefixString()} {Right.ToPrefixString()}";
+
         protected override Function _diff(Symbol variable) => (Left.Diff(variable) * Right - Right.Diff(variable) * Left) / (Right ^ 2);
 
         protected override Function _integrate(Symbol variable)

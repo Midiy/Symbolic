@@ -77,6 +77,16 @@ namespace Symbolic.Functions
 
         public override string ToString(string inner) => $"{Coefficient}*({inner})^{Exponent}";
 
+        public override string ToPrefixString(string inner)
+        {
+            if (Coefficient == 0) { return "( 0 )"; }
+            if (Exponent == 0) { return Coefficient.ToPrefixString(); }
+            string coeffStr = Coefficient == 1 ? "" : $"* {Coefficient.ToPrefixString()} ";
+            if (Exponent == 1) { return coeffStr + inner; }
+            // Generally $"* {Coefficient.ToPrefixString()} ^ {inner} {Exponent.ToPrefixString()}".
+            else { return coeffStr + $"^ {inner} {Exponent.ToPrefixString()}"; }
+        }
+
         protected override Function _diff(Symbol variable)
         {
             if (Coefficient == 0 || Exponent == 0) { return 0; }

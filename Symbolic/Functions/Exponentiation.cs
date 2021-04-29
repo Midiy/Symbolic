@@ -31,6 +31,10 @@ namespace Symbolic.Functions
 
         public override string ToString() => $"({Base})^({Exponent})";
 
+        public override string ToPrefixString(string inner) => $"^ {Base.ToPrefixString(inner)} {Exponent.ToPrefixString(inner)}";
+
+        public override string ToPrefixString() => $"^ {Base.ToPrefixString()} {Exponent.ToPrefixString()}";
+
         protected override Function _diff(Symbol _) => throw new NotImplementedException();
 
         protected override Function _integrate(Symbol _) => throw new NotImplementedException();
