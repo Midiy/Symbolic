@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 using Symbolic.Functions.Standart;
 using Symbolic.Utils;
@@ -9,6 +10,7 @@ using static Symbolic.Utils.FunctionFactory;
 
 namespace Symbolic.Functions
 {
+    // TODO : Should Polynomial have inner function different from Symbol?
     public class Polynomial : Function
     {
         public IEnumerable<Constant> Coeffs;
@@ -19,17 +21,23 @@ namespace Symbolic.Functions
             HasAllIntegralsKnown = true;
         }
 
-        public Polynomial(Symbol variable, IEnumerable<Constant> coeffs, bool reversed = false) : base(variable)
+        public Polynomial(Function inner, IEnumerable<Constant> coeffs, bool reversed = false) : base(inner)
         {
             Coeffs = (reversed ? coeffs : coeffs.Reverse());
             if (Coeffs.Count() == 0) { Coeffs = new Constant[] { 0 }; }
             HasAllIntegralsKnown = true;
+            PriorityWhenInner = Priorities.Addition;
+            PriorityWhenOuter = Priorities.Exponentiation;
         }
 
-        public Polynomial(Symbol variable, params Constant[] coeffs) : this(variable, coeffs, false) { }
+        public Polynomial(Function inner, params Constant[] coeffs) : this(inner, coeffs, false) { }
 
+        // TODO : Add Inner.
         public Polynomial(IEnumerable<Monomial> addends)
         {
+            // It is hard to validate that all monomials have the same inner function (because of monomials which have zero exponent),
+            // so only monomials where inner function is symbol are acceptable.
+            if (addends.All((Monomial m) => m.Inner is Symbol)) { throw new Exception(); }   // TODO : Specify exception type.
             Symbol variable = addends.Aggregate(Symbol.ANY, (Symbol acc, Monomial curr) => acc | curr.Variable);
             if (!addends.All((Monomial m) => m.Variable == variable)) { throw new Exception(); }   // TODO : Specify exception type.
             addends = addends.OrderBy((Monomial m) => m.Exponent);
@@ -42,13 +50,12 @@ namespace Symbolic.Functions
                 coeffs[position++] = m.Coefficient;
             }
             Coeffs = coeffs;
+            Inner = variable;
             Variable = variable;
             HasAllIntegralsKnown = true;
         }
 
         public Polynomial(params Monomial[] addends) : this((IEnumerable<Monomial>)addends) { }
-
-        public override double GetValue(double variableValue) => Coeffs.Select((Constant coeff, int num) => coeff * Math.Pow(variableValue, num)).Aggregate((Constant acc, Constant curr) => acc + curr);
 
         public override Polynomial Negate() => Polynomial(Variable, Coeffs.Select((Constant c) => -c), true);
 
@@ -132,60 +139,48 @@ namespace Symbolic.Functions
             else { return base.Raise(other); }
         }
 
-        public override Function WithVariable(Symbol newVariable) => Polynomial(newVariable, Coeffs, true);
-
-        public override bool Equals(Function? other) => other is Polynomial p && Coeffs.SequenceEqual(p.Coeffs);
-
-        public override string ToString(string inner)
-        {
-            // TODO : Rewrite from scratch.
-            string str = Coeffs.Select((Constant coeff, int num) =>
-            {
-                string result = "";
-                if (coeff != 0)
-                {
-                    if (num != 0)
-                    {
-                        string strCoeff = "";
-                        if (coeff == -1) { strCoeff = "-"; }
-                        else if (coeff != 1) { strCoeff = coeff.ToString(); }
-
-                        if (num != 1) { result += $"{strCoeff}({inner})^{num}"; }
-                        else { result += $"{strCoeff}({inner})"; }
-                    }
-                    else { result += coeff.ToString(); }
-                }
-                return result;
-            })
-                              .Reverse()
-                              .Aggregate((string acc, string curr) =>
-                              {
-                                  bool signFlag = false;
-                                  if (curr.StartsWith("-"))
-                                  {
-                                      curr = curr[1..];
-                                      signFlag = true;
-                                  }
-                                  return curr == "" ? acc : $"{acc} {(signFlag ? "-" : (acc == "" ? "" : "+"))} {curr}";
-                              }).Trim();
-            if (str == "") { str = "0"; }
-            return str;
-        }
-
-        public override string ToPrefixString(string inner)
+        public override string ToPrefixString()
         {
             // Constructor is used because this monomials are temporary objects that not expected to be cached.
-            IEnumerable<string> monomialReprs = Coeffs.Select((Constant coeff, int num) => new Monomial(Symbol.ANY, coeff, num).ToPrefixString(inner)).Where((string s) => s != "( 0 )");
+            IEnumerable<string> monomialReprs = Coeffs.Select((Constant coeff, int num) => new Monomial(Inner, coeff, num).ToPrefixString()).Where((string s) => s != "( 0 )");
             if (!monomialReprs.Any()) { return "( 0 )"; }
             else if (monomialReprs.Count() == 1) { return monomialReprs.Single(); }
             else { return string.Join(' ', Enumerable.Repeat('+', monomialReprs.Count() - 1)) + " " + string.Join(' ', monomialReprs); }
+        }
+
+        protected override double _getValue(double variableValue) => Coeffs.Select((Constant coeff, int num) => coeff * Math.Pow(variableValue, num)).Aggregate((Constant acc, Constant curr) => acc + curr);
+
+        protected override Function _applyTo(Function inner) => Polynomial(inner, Coeffs, true);
+
+        protected override bool _equals(Function? other) => other is Polynomial p && Coeffs.SequenceEqual(p.Coeffs);
+
+        protected override string _toString()
+        {
+            // Constructor is used because this monomials are temporary objects that not expected to be cached.
+            IEnumerable<string> monomialStrings = Coeffs.Select((Constant coeff, int num) => new Monomial(Inner, coeff, num).ToString(Priorities.Addition))
+                                                        .Where((string s) => s != "0")
+                                                        .Reverse();
+            if (!monomialStrings.Any()) { return "0"; }
+            else
+            {
+                StringBuilder builder = new StringBuilder(monomialStrings.First().Trim('(', ')'));
+                foreach (string s in monomialStrings.Skip(1))
+                {
+                    if (s.StartsWith("(-")) 
+                    { 
+                        builder.Append(" - ").Append(s.Substring(2).TrimStart().TrimEnd(')').TrimEnd());
+                    }
+                    else { builder.Append(" + ").Append(s); }
+                }
+                return builder.ToString();
+            }
         }
 
         protected override Function _diff(Symbol _)
         {
             if (Coeffs.Count() == 1) { return 0; }
             else if (Coeffs.Count() == 2) { return Coeffs.Last(); }
-            else { return Polynomial(Variable, Coeffs.Skip(1).Select((Constant coeff, int num) => coeff * (num + 1)), true); }
+            else { return Polynomial(Inner, Coeffs.Skip(1).Select((Constant coeff, int num) => coeff * (num + 1)), true); }
         }
 
         protected override Function _integrate(Symbol variable)
@@ -198,7 +193,7 @@ namespace Symbolic.Functions
             else { return Polynomial(Variable, Coeffs.Select((Constant coeff, int num) => coeff / (num + 1)).Prepend(0), true); }
         }
 
-        protected override HashCodeCombiner _addHashCodeParams(HashCodeCombiner combiner) => combiner.AddEnumerable(Coeffs);
+        protected override HashCodeCombiner _addParamsHashCode(HashCodeCombiner combiner) => combiner.AddEnumerable(Coeffs);
 
         public static explicit operator Polynomial(Power power)
         {

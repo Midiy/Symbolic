@@ -10,13 +10,15 @@ namespace Symbolic.Functions.Standart
     {
         public Constant Exponent { get; init; }
 
-        public Power(Symbol variable, Constant exponent) : base(variable)
+        public Power(Function inner, Constant exponent) : base(inner)
         {
             Exponent = exponent;
             HasAllIntegralsKnown = true;
+            PriorityWhenInner = Priorities.Exponentiation;
+            PriorityWhenOuter = Priorities.Exponentiation;
         }
 
-        public override double GetValue(double variableValue) => Math.Pow(variableValue, Exponent);
+        public override string ToPrefixString() => $"^ {Inner.ToPrefixString()} {Exponent.ToPrefixString()}";
 
         public override Function Add(Function other)
         {
@@ -53,18 +55,18 @@ namespace Symbolic.Functions.Standart
             return base.Multiply(other);
         }
 
-        public override Power WithVariable(Symbol newVariable) => Power(newVariable, Exponent);
+        protected override double _getValue(double variableValue) => Math.Pow(variableValue, Exponent);
 
-        public override bool Equals(Function? other) => other is Power p && p.Exponent == Exponent && other.Variable == Variable;
+        protected override Function _applyTo(Function inner) => Power(inner, Exponent);
 
-        public override string ToString(string inner) => $"({inner})^({Exponent})";
+        protected override bool _equals(Function other) => other is Power p && Exponent == p.Exponent;
 
-        public override string ToPrefixString(string inner) => $"^ {inner} {Exponent.ToPrefixString()}";
-
-        protected override Function _diff(Symbol _) => Exponent * (Variable ^ (Exponent - 1));
+        protected override Function _diff(Symbol _) => Exponent * (Inner ^ (Exponent - 1));
 
         protected override Function _integrate(Symbol _) => (Variable ^ (Exponent + 1)) / (Exponent + 1);
 
-        protected override HashCodeCombiner _addHashCodeParams(HashCodeCombiner combiner) => combiner.Add(Exponent);
+        protected override HashCodeCombiner _addParamsHashCode(HashCodeCombiner combiner) => combiner.Add(Exponent);
+
+        protected override string _toString() => $"{Inner.ToString(PriorityWhenOuter)}^{Exponent.ToString(PriorityWhenOuter)}";
     }
 }

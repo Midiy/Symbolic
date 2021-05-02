@@ -1,23 +1,29 @@
 ﻿using System;
 
+using Symbolic.Utils;
+
 using static Symbolic.Utils.FunctionFactory;
 
 namespace Symbolic.Functions.Standart
 {
     public class Sqrt : Root
     {
-        public Sqrt(Symbol variable) : base(variable, 2) { }
+        public Sqrt(Function inner) : base(inner, 2)
+        {
+            PriorityWhenInner = Priorities.InnerStandartFunctions;
+            PriorityWhenOuter = Priorities.OuterStandartFunctions;
+        }
 
-        public override double GetValue(double variableValue) => Math.Sqrt(variableValue);
+        public override string ToPrefixString() => $"sqrt {Inner.ToPrefixString()}";
 
-        public override Sqrt WithVariable(Symbol newVariable) => Sqrt(newVariable);
+        protected override double _getValue(double variableValue) => Math.Sqrt(variableValue);
 
-        public override string ToString(string inner) => $"sqrt({inner})";
+        protected override Function _applyTo(Function inner) => Sqrt(inner);
 
-        public override string ToPrefixString(string inner) => $"sqrt {inner}";
+        protected override Function _diff(Symbol _) => 1 / (2 * Sqrt(Inner));
 
-        protected override Function _diff(Symbol _) => 1 / (2 * Sqrt(Variable));
+        protected override Function _integrate(Symbol _) => 2 / 3 * Variable * Sqrt(Variable);
 
-        protected override Function _integrate(Symbol _) => 2 * Variable * Sqrt(Variable);
+        protected override string _toString() => $"sqrt({Inner.ToString(PriorityWhenOuter)})";
     }
 }

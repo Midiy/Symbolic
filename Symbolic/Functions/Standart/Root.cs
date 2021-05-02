@@ -6,10 +6,10 @@ namespace Symbolic.Functions.Standart
     {
         public Constant Degree;
 
-        public Root(Symbol variable, Constant degree) : base(variable, 1 / degree) => Degree = degree;
+        public Root(Function inner, Constant degree) : base(inner, 1 / degree) => Degree = degree;
 
-        public override Root WithVariable(Symbol newVariable) => Root(newVariable, Degree);
+        public override string ToPrefixString() => $"root {Inner.ToPrefixString()} {Degree.ToPrefixString()}";
 
-        public override string ToPrefixString(string inner) => $"root {inner} {Degree.ToPrefixString()}";
+        protected override Function _applyTo(Function inner) => Root(inner, Degree);
     }
 }

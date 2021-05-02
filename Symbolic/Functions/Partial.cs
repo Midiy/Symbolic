@@ -12,21 +12,15 @@ namespace Symbolic.Functions
 
         public Partial(IEnumerable<(Function func, Constant leftBound, Constant rightBound)> parts)
         {
-            Symbol variable = parts.First().func.Variable;
+            Symbol variable = parts.Aggregate(Symbol.ANY, (Symbol acc, (Function func, Constant, Constant) curr) => acc | curr.func.Variable);
             if (!parts.All(((Function func, Constant, Constant) t) => t.func.Variable == variable)) { throw new Exception(); }    // TODO : Specify exception type.
+            Inner = variable;
             Variable = variable;
             Parts = _checkIfSimular(parts.OrderBy(((Function, Constant lowerBound, Constant) t) => t.lowerBound));
             HasAllIntegralsKnown = parts.All(((Function func, Constant, Constant) t) => t.func.HasAllIntegralsKnown);
         }
 
         public Partial(params (Function func, Constant leftBound, Constant rightBound)[] parts) : this((IEnumerable<(Function func, Constant leftBound, Constant rightBound)>)parts) { }
-
-        public override double GetValue(double variableValue)
-        {
-            Function? part = Parts.FirstOrDefault(((Function func, Constant leftBound, Constant rightBound) t) => t.leftBound < variableValue && variableValue < t.rightBound).func;
-            if (part == default) { throw new ArgumentOutOfRangeException(); }
-            else { return part.GetValue(variableValue); }
-        }
 
         public override Partial Negate() => _transform((Function f) => f.Negate());
 
@@ -40,25 +34,36 @@ namespace Symbolic.Functions
 
         public override Function Raise(Function other) => other is Partial p ? _transform(p, (Function left, Function right) => left.Raise(right)) : _transform((Function f) => f.Raise(other));
 
-        public override Function ApplyTo(Function inner) => inner is Partial p ? _transform(p, (Function outer, Function inner) => outer.ApplyTo(inner)) : _transform((Function f) => f.ApplyTo(inner));
+        public override Function ApplyTo(Function inner) => inner switch
+                                                               {
+                                                                   Constant c => GetValue(c),
+                                                                   Partial p  => _transform(p, (Function outer, Function inner) => outer.ApplyTo(inner)),
+                                                                   _          => _transform((Function f) => f.ApplyTo(inner))
+                                                               };
 
-        public override Partial WithVariable(Symbol newVariable) => _transform((Function f) => f.WithVariable(newVariable));
+        public override string ToPrefixString() => $"partial {Variable}";
 
-        public override bool Equals(Function? other) => other is Partial p && Parts.SequenceEqual(p.Parts);
+        protected override double _getValue(double variableValue)
+        {
+            Function? part = Parts.FirstOrDefault(((Function func, Constant leftBound, Constant rightBound) t) => t.leftBound < variableValue && variableValue < t.rightBound).func;
+            if (part == default) { throw new ArgumentOutOfRangeException(); }
+            else { return part.GetValue(variableValue); }
+        }
+
+        protected override Function _applyTo(Function inner) => ApplyTo(inner);
+
+        protected override bool _equals(Function? other) => other is Partial p && Parts.SequenceEqual(p.Parts);
 
         // TODO : String representation.
-        public override string ToString(string inner)
-        {
-            return base.ToString(inner);
-        }
+        protected override string _toString() => $"partial({Variable})";
 
         protected override Partial _diff(Symbol variable) => _transform((Function f) => f.Diff(variable));
 
         protected override Partial _integrate(Symbol variable) => _transform((Function f) => f.Integrate(variable));
 
-        protected override HashCodeCombiner _addHashCodeVariable(HashCodeCombiner combiner) => combiner;
+        protected override HashCodeCombiner _addInnerHashCode(HashCodeCombiner combiner) => combiner;
 
-        protected override HashCodeCombiner _addHashCodeParams(HashCodeCombiner combiner)
+        protected override HashCodeCombiner _addParamsHashCode(HashCodeCombiner combiner)
         {
             return combiner.Add(Parts.Select(((Function func, Constant leftBound, Constant rightBound) t) => new HashCodeCombiner(2).Add(t.func)
                                                                                                                                     .Add(t.leftBound)
@@ -71,7 +76,7 @@ namespace Symbolic.Functions
 
         private Partial _transform(Partial other, Func<Function, Function, Function> transformer)
         {
-            IEnumerable<(Function func, Constant leftBound, Constant rightBound)> result = new (Function func, Constant leftBound, Constant rightBound)[] { };
+            IEnumerable<(Function func, Constant leftBound, Constant rightBound)> result = Enumerable.Empty<(Function func, Constant leftBound, Constant rightBound)>();
             Func<Constant, Constant, Constant, Constant, bool> isIntersects = (Constant leftBound1, Constant rightBound1, Constant leftBound2, Constant rightBound2) => leftBound1 < rightBound2 && leftBound2 < rightBound1;
             foreach ((Function func, Constant leftBound, Constant rightBound) in Parts)
             {

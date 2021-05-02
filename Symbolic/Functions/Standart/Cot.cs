@@ -1,25 +1,29 @@
 ﻿using System;
 
+using Symbolic.Utils;
+
 using static Symbolic.Utils.FunctionFactory;
 
 namespace Symbolic.Functions.Standart
 {
     public class Cot : Function
     {
-        public Cot(Symbol variable) : base(variable) { }
+        public Cot(Function inner) : base(inner)
+        {
+            PriorityWhenInner = Priorities.InnerStandartFunctions;
+            PriorityWhenOuter = Priorities.OuterStandartFunctions;
+        }
 
-        public override double GetValue(double variableValue) => 1 / Math.Tan(variableValue);
+        public override string ToPrefixString() => $"cot {Inner.ToPrefixString()}";
 
-        public override Cot WithVariable(Symbol newVariable) => Cot(newVariable);
+        protected override double _getValue(double variableValue) => 1 / Math.Tan(variableValue);
 
-        public override bool Equals(Function? other) => other is Cot && other.Variable == Variable;
+        protected override Function _applyTo(Function inner) => Cot(inner);
 
-        public override string ToString(string inner) => $"cot({inner})";
-
-        public override string ToPrefixString(string inner) => $"cot {inner}";
-
-        protected override Function _diff(Symbol _) => -1 / (Sin(Variable) ^ 2);
+        protected override Function _diff(Symbol _) => -1 / (Sin(Inner) ^ 2);
 
         protected override Function _integrate(Symbol _) => Ln(Abs(Sin(Variable)));
+
+        protected override string _toString() => $"cot({Inner.ToString(PriorityWhenOuter)})";
     }
 }

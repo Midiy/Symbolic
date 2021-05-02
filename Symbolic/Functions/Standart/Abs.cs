@@ -1,26 +1,30 @@
 ﻿using System;
 
+using Symbolic.Utils;
+
 using static Symbolic.Utils.FunctionFactory;
 
 namespace Symbolic.Functions.Standart
 {
     public class Abs : Partial
     {
-        public Abs(Symbol variable) : base(new (Function, Constant, Constant)[] {
-                                                                                    (-variable, Constant.NegativeInfinity, 0),
-                                                                                    (variable, 0, Constant.PositiveInfinity)
-                                                                                }) { }
-            
-        public override double GetValue(double variableValue) => Math.Abs(variableValue);
+        public Abs(Function inner) : base(new (Function, Constant, Constant)[] {
+                                                                                   (-inner, Constant.NegativeInfinity, 0),
+                                                                                   (inner, 0, Constant.PositiveInfinity)
+                                                                               })
+        {
+            PriorityWhenInner = Priorities.InnerStandartFunctions;
+            PriorityWhenOuter = Priorities.OuterStandartFunctions;
+        }
 
         public override Function Raise(Function other) => (other is Constant c && c % 2 == 0) ? Power(Variable, c) : base.Raise(other);
 
-        public override Abs WithVariable(Symbol newVariable) => Abs(newVariable);
+        public override string ToPrefixString() => $"abs {Inner.ToPrefixString()}";
+            
+        protected override double _getValue(double variableValue) => Math.Abs(variableValue);
 
-        public override bool Equals(Function? other) => other is Abs && Variable == other.Variable;
+        protected override Function _applyTo(Function inner) => Abs(inner);
 
-        public override string ToString(string inner) => $"|{inner}|";
-
-        public override string ToPrefixString(string inner) => $"abs {inner}";
+        protected override string _toString() => $"|{Inner.ToString(PriorityWhenOuter)}|";
     }
 }

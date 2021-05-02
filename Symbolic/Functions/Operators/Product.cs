@@ -1,24 +1,19 @@
 ﻿using Symbolic.Functions.Standart;
 using Symbolic.Utils;
 
-namespace Symbolic.Functions
+namespace Symbolic.Functions.Operators
 {
-    public class Product : Function
+    public class Product : Operator
     {
-        public Function Left { get; init; }
-        public Function Right { get; init; }
-
-        public Product(Function left, Function right)
+        public Product(Function left, Function right) : base(left, right, true, "*")
         {
-            (Left, Right) = (left, right);
-            if (Left.Variable == Right.Variable) { Variable = Left.Variable | Right.Variable; }
             HasAllIntegralsKnown = (Left.HasAllIntegralsKnown && (Right is Polynomial || Right is Power pw && pw.Exponent >= 0 && pw.Exponent % 1 == 0)) ||
                                    (Right.HasAllIntegralsKnown && (Left is Polynomial || Left is Power pw1 && pw1.Exponent >= 0 && pw1.Exponent % 1 == 0));
+            PriorityWhenInner = Priorities.Multiplication;
+            PriorityWhenOuter = Priorities.Multiplication;
         }
 
         public override Function Diff(Symbol variable) => Left.Diff(variable) * Right + Left * Right.Diff(variable);
-
-        public override double GetValue(double variableValue) => Left.GetValue(variableValue) * Right.GetValue(variableValue);
 
         public override Function Divide(Function other)
         {
@@ -34,21 +29,11 @@ namespace Symbolic.Functions
             return base.Divide(other);
         }
 
-        public override Function ApplyTo(Function inner) => Left.ApplyTo(inner) * Right.ApplyTo(inner);
+        protected override double _getValue(double variableValue) => Left.GetValue(variableValue) * Right.GetValue(variableValue);
 
-        public override Function WithVariable(Symbol newVariable) => Left.WithVariable(newVariable) * Right.WithVariable(newVariable);
+        protected override Function _applyTo(Function inner) => Left.ApplyTo(inner) * Right.ApplyTo(inner);
 
-        public override bool Equals(Function? other) => other is Product p && (p.Left == Left && p.Right == Right || p.Left == Right && p.Right == p.Left);
-
-        public override string ToString(string inner) => $"({Left.ToString(inner)}) * ({Right.ToString(inner)})";
-
-        public override string ToString() => $"({Left}) * ({Right})";
-
-        public override string ToPrefixString(string inner) => $"* {Left.ToPrefixString(inner)} {Right.ToPrefixString(inner)}";
-
-        public override string ToPrefixString() => $"* {Left.ToPrefixString()} {Right.ToPrefixString()}";
-
-        protected override Function _diff(Symbol variable) => Left.Diff(variable) * Right + Right.Diff(variable) * Left;
+        protected override Function _diff(Symbol variable) => Diff(variable);
 
         protected override Function _integrate(Symbol variable)
         {
@@ -79,9 +64,5 @@ namespace Symbolic.Functions
             }
             else { throw new System.NotImplementedException(); }
         }
-
-        protected override HashCodeCombiner _addHashCodeVariable(HashCodeCombiner combiner) => combiner;
-
-        protected override HashCodeCombiner _addHashCodeParams(HashCodeCombiner combiner) => combiner.Add(Left, Right);
     }
 }

@@ -29,20 +29,30 @@ namespace Symbolic.Functions
         private Symbol() : base()
         {
             StrSymbol = "ANY";
+            Inner = this;
             Variable = this;
             _isAny = true;
+            PriorityWhenInner = Priorities.Symbol;
+            PriorityWhenOuter = Priorities.Symbol;
         }
 
         public Symbol(string strSymbol)
         {
             StrSymbol = strSymbol;
+            Inner = this;
             Variable = this;
             Coefficient = 1;
             Exponent = 1;
             Coeffs = new Constant[] { 0, 1 };
+            PriorityWhenInner = Priorities.Symbol;
+            PriorityWhenOuter = Priorities.Symbol;
         }
 
         public override double GetValue(double variableValue) => variableValue;
+
+        public override Constant Diff(Symbol variable) => this == variable ? 1 : 0;
+
+        public override Function Integrate(Symbol variable) => this == variable ? (this ^ 2) / 2 : this * variable;
 
         public override Monomial Negate() => Monomial(this, -1, 1);
 
@@ -117,27 +127,29 @@ namespace Symbolic.Functions
             else { return base.Raise(other); }
         }
 
-        public override Function ApplyTo(Function inner) => inner;
-
-        public override Symbol WithVariable(Symbol newVariable) => newVariable;
+        public override Function ApplyTo(Function inner) => inner is Constant c ? c.Value : inner;
 
         public override bool Equals(Function? other) => other is Symbol s && (s.StrSymbol == StrSymbol || _isAny || s._isAny);
 
-        public override string ToString(string inner) => inner;
-
-        public override string ToString() => StrSymbol;
-
-        public override string ToPrefixString(string inner) => inner;
-
         public override string ToPrefixString() => StrSymbol;
 
-        protected override Constant _diff(Symbol _) => 1;
+        protected override double _getValue(double variableValue) => GetValue(variableValue);
 
-        protected override Function _integrate(Symbol _) => (this ^ 2) / 2;
+        protected override Function _applyTo(Function inner) => ApplyTo(inner);
 
-        protected override HashCodeCombiner _addHashCodeVariable(HashCodeCombiner combiner) => combiner;
+        protected override bool _equals(Function? other) => Equals(other);
 
-        protected override HashCodeCombiner _addHashCodeParams(HashCodeCombiner combiner) => combiner.Add(StrSymbol);
+        protected override string _toString() => StrSymbol;
+
+        protected override Constant _diff(Symbol variable) => Diff(variable);
+
+        protected override Function _integrate(Symbol variable) => Integrate(variable);
+
+        protected override HashCodeCombiner _addInnerHashCode(HashCodeCombiner combiner) => combiner;
+
+        protected override HashCodeCombiner _addParamsHashCode(HashCodeCombiner combiner) => combiner.Add(StrSymbol);
+
+        public static bool IsAny(Function func) => func is Symbol s && s._isAny;
 
         public static Symbol operator |(Symbol left, Symbol right) => (left is null || left._isAny) ? right : left;
     }

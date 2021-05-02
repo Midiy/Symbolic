@@ -6,14 +6,14 @@ namespace Symbolic.Functions.Standart
 {
     public class Log2 : Log
     {
-        public Log2(Symbol variable) : base(variable, 2) { }
+        public Log2(Function inner) : base(inner, 2) { }
 
-        public override double GetValue(double variableValue) => Math.Log2(variableValue);
+        public override string ToPrefixString() => $"log2 {Inner.ToPrefixString()}";
 
-        public override Log2 WithVariable(Symbol newVariable) => Log2(newVariable);
+        protected override double _getValue(double variableValue) => Math.Log2(variableValue);
 
-        public override string ToString(string inner) => $"log2({inner})";
+        protected override Function _applyTo(Function inner) => Log2(inner);
 
-        public override string ToPrefixString(string inner) => $"log2 {inner}";
+        protected override string _toString() => $"log2({Inner.ToString(PriorityWhenOuter)})";
     }
 }

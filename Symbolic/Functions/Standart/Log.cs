@@ -10,26 +10,28 @@ namespace Symbolic.Functions.Standart
     {
         public Constant Base { get; init; }
 
-        public Log(Symbol variable, Constant @base) : base(variable)
+        public Log(Function inner, Constant @base) : base(inner)
         {
             Base = @base;
             HasAllIntegralsKnown = true;
+            PriorityWhenInner = Priorities.InnerStandartFunctions;
+            PriorityWhenOuter = Priorities.OuterStandartFunctions;
         }
 
-        public override double GetValue(double variableValue) => Math.Log(variableValue) / Math.Log(Base);
+        public override string ToPrefixString() => $"log {Inner.ToPrefixString()} {Base.ToPrefixString()}";
 
-        public override Log WithVariable(Symbol newVariable) => Log(newVariable, Base);
+        protected override double _getValue(double variableValue) => Math.Log(variableValue) / Math.Log(Base);
 
-        public override bool Equals(Function? other) => other is Log l && l.Base == Base && other.Variable == Variable;
+        protected override Function _applyTo(Function inner) => Log(inner, Base);
 
-        public override string ToString(string inner) => $"log({inner}, {Base})";
+        protected override bool _equals(Function other) => other is Log l && Base == l.Base;
 
-        public override string ToPrefixString(string inner) => $"log {inner} {Base.ToPrefixString()}";
-
-        protected override Function _diff(Symbol _) => 1 / (Ln(Base) * Variable);
+        protected override Function _diff(Symbol _) => 1 / (Ln(Base) * Inner);
 
         protected override Function _integrate(Symbol _) => (Variable * Ln(Variable) - Variable) / Ln(Base);
 
-        protected override HashCodeCombiner _addHashCodeParams(HashCodeCombiner combiner) => combiner.Add(Base);
+        protected override HashCodeCombiner _addParamsHashCode(HashCodeCombiner combiner) => combiner.Add(Base);
+
+        protected override string _toString() => $"log({Inner.ToString(PriorityWhenOuter)}, {Base.ToString(PriorityWhenOuter)})";
     }
 }

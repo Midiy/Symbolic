@@ -1,25 +1,30 @@
 ﻿using System;
 
+using Symbolic.Utils;
+
 using static Symbolic.Utils.FunctionFactory;
 
 namespace Symbolic.Functions.Standart
 {
     public class Sin : Function
     {
-        public Sin(Symbol variable) : base(variable) => HasAllIntegralsKnown = true;
+        public Sin(Function inner) : base(inner)
+        {
+            HasAllIntegralsKnown = true;
+            PriorityWhenInner = Priorities.InnerStandartFunctions;
+            PriorityWhenOuter = Priorities.OuterStandartFunctions;
+        }
 
-        public override double GetValue(double variableValue) => Math.Sin(variableValue);
+        public override string ToPrefixString() => $"sin {Inner.ToPrefixString()}";
 
-        public override Sin WithVariable(Symbol newVariable) => Sin(newVariable);
+        protected override double _getValue(double variableValue) => Math.Sin(variableValue);
 
-        public override bool Equals(Function? other) => other is Sin && other.Variable == Variable;
+        protected override Function _applyTo(Function inner) => Sin(inner);
 
-        public override string ToString(string inner) => $"sin({inner})";
-
-        public override string ToPrefixString(string inner) => $"sin {inner}";
-
-        protected override Cos _diff(Symbol _) => Cos(Variable);
+        protected override Function _diff(Symbol _) => Cos(Inner);
 
         protected override Function _integrate(Symbol _) => -Cos(Variable);
+
+        protected override string _toString() => $"sin({Inner.ToString(PriorityWhenOuter)})";
     }
 }

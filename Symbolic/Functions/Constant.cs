@@ -29,16 +29,14 @@ namespace Symbolic.Functions
             Coefficient = this;
             Exponent = value == 0 ? this : 0;
             Coeffs = new Constant[] { this };
+            PriorityWhenInner = value < 0 ? Priorities.NegativeConstant : Priorities.NonNegativeConstant;
+            PriorityWhenOuter = Priorities.Constant;
 
             bool signFlag = value < 0;
             string[] digits = Math.Abs(value).ToString().ToCharArray().Select((char c) => c.ToString()).ToArray();
             if (signFlag) { digits[0] = "-" + digits[0]; }
             _prefixStringRepr = $"( {string.Join(" ", digits)} )";
         }
-
-        public override double GetValue(double _) => Value;
-
-        public override Constant Diff(Symbol _) => 0;
 
         public override Constant Negate() => -Value;
 
@@ -85,27 +83,29 @@ namespace Symbolic.Functions
             else { return base.Multiply(other); }
         }
 
-        public override Function ApplyTo(Function _) => this;
-
-        public override Function WithVariable(Symbol newVariable) => this;
+        public override bool Equals(Function? other) => other is Constant c && Value == c.Value;
 
         public int CompareTo(Constant? other) => Value.CompareTo(other?.Value);
 
         public int CompareTo(double value) => Value.CompareTo(value);
 
-        public override bool Equals(Function? other) => other is Constant c && c.Value == Value;
+        public override string ToPrefixString() => _prefixStringRepr;
 
-        public override string ToString(string _) => Value.ToString();
+        protected override double _getValue(double _) => Value;
 
-        public override string ToPrefixString(string _) => _prefixStringRepr;
+        protected override Function _applyTo(Function _) => this;
 
-        protected override Function _diff(Symbol variable) => 0;
+        protected override bool _equals(Function? other) => Equals(other);
+
+        protected override Constant _diff(Symbol _) => 0;
 
         protected override Function _integrate(Symbol variable) => this * variable;
 
-        protected override HashCodeCombiner _addHashCodeVariable(HashCodeCombiner combiner) => combiner;
+        protected override HashCodeCombiner _addInnerHashCode(HashCodeCombiner combiner) => combiner;
 
-        protected override HashCodeCombiner _addHashCodeParams(HashCodeCombiner combiner) => combiner.Add(Value);
+        protected override HashCodeCombiner _addParamsHashCode(HashCodeCombiner combiner) => combiner.Add(Value);
+
+        protected override string _toString() => Value.ToString();
 
         #region Operators
         public static Constant operator -(Constant inner) => -inner.Value;

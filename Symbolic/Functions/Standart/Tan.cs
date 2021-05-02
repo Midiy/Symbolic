@@ -1,25 +1,29 @@
 ﻿using System;
 
+using Symbolic.Utils;
+
 using static Symbolic.Utils.FunctionFactory;
 
 namespace Symbolic.Functions.Standart
 {
     public class Tan : Function
     {
-        public Tan(Symbol variable) : base(variable) { }
+        public Tan(Function inner) : base(inner)
+        {
+            PriorityWhenInner = Priorities.InnerStandartFunctions;
+            PriorityWhenOuter = Priorities.OuterStandartFunctions;
+        }
 
-        public override double GetValue(double variableValue) => Math.Tan(variableValue);
+        public override string ToPrefixString() => $"tan {Inner.ToPrefixString()}";
 
-        public override Tan WithVariable(Symbol newVariable) => Tan(newVariable);
+        protected override double _getValue(double variableValue) => Math.Tan(variableValue);
 
-        public override bool Equals(Function? other) => other is Tan && other.Variable == Variable;
+        protected override Function _applyTo(Function inner) => Tan(inner);
 
-        public override string ToString(string inner) => $"tan({inner})";
-
-        public override string ToPrefixString(string inner) => $"tan {inner}";
-
-        protected override Function _diff(Symbol _) => 1 / (Cos(Variable) ^ 2);
+        protected override Function _diff(Symbol _) => 1 / (Cos(Inner) ^ 2);
 
         protected override Function _integrate(Symbol _) => -Ln(Abs(Cos(Variable)));
+
+        protected override string _toString() => $"tan({Inner.ToString(PriorityWhenOuter)})";
     }
 }

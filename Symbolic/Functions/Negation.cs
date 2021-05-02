@@ -4,15 +4,18 @@ namespace Symbolic.Functions
 {
     public class Negation : Function
     {
-        public Function Inner { get; init; }
-
-        public Negation(Function inner) : base(inner.Variable)
+        public Negation(Function inner) : base(inner)
         {
-            Inner = inner;
             HasAllIntegralsKnown = inner.HasAllIntegralsKnown;
+            PriorityWhenInner = Priorities.InnerNegation;
+            PriorityWhenOuter = Priorities.OuterNegation;
         }
 
-        public override double GetValue(double variableValue) => -Inner.GetValue(variableValue);
+        public override Function Integrate(Symbol variable)
+        {
+            if (variable == Variable) { return -Inner.Integrate(variable); }
+            else { return this * variable; }
+        }
 
         public override Function Negate() => Inner;
 
@@ -28,26 +31,16 @@ namespace Symbolic.Functions
             else { return base.Divide(other); }
         }
 
-        public override Function ApplyTo(Function inner) => -Inner.ApplyTo(inner);
-
-        public override Function WithVariable(Symbol newVariable) => -Inner.WithVariable(newVariable);
-
-        public override bool Equals(Function? other) => other is Negation n && n.Inner == Inner;
-
-        public override string ToString(string inner) => $"-({Inner.ToString(inner)})";
-
-        public override string ToString() => $"-({Inner})";
-
-        public override string ToPrefixString(string inner) => $"* ( -1 ) {Inner.ToPrefixString(inner)}";   // To avoid ambiguity with unary and binary minus.
-
         public override string ToPrefixString() => $"* ( -1 ) {Inner.ToPrefixString()}";   // To avoid ambiguity with unary and binary minus.
 
-        protected override Function _diff(Symbol variable) => -Inner.Diff(variable);
+        protected override double _getValue(double variableValue) => -variableValue;
 
-        protected override Function _integrate(Symbol variable) => -Inner.Integrate(variable);
+        protected override Function _applyTo(Function inner) => -inner;
 
-        protected override HashCodeCombiner _addHashCodeVariable(HashCodeCombiner combiner) => combiner;
+        protected override Function _diff(Symbol _) => -1;
 
-        protected override HashCodeCombiner _addHashCodeParams(HashCodeCombiner combiner) => combiner.Add(Inner);
+        protected override Function _integrate(Symbol variable) => Integrate(variable);
+
+        protected override string _toString() => $"-{Inner.ToString(PriorityWhenOuter)}";
     }
 }
