@@ -15,6 +15,19 @@ namespace DllTest
             Symbol x = Symbol("x");
             Symbol y = Symbol("y");
 
+            // Properties.WithoutCaching() usage demonstration.
+            Function sin1, sin2, sin3;
+            sin1 = Sin(x);
+            using (new Properties.WithoutCaching())
+            {
+                sin2 = Sin(x);
+            }
+            sin3 = Sin(x);
+            Console.WriteLine(ReferenceEquals(sin1, sin2));
+            Console.WriteLine(ReferenceEquals(sin2, sin3));
+            Console.WriteLine(ReferenceEquals(sin1, sin3));
+            Console.WriteLine();
+
             // HashCode demonstration.
             Console.WriteLine(new Sin(x).GetHashCode() == new Sin(x).GetHashCode());
             Console.WriteLine(new Sin(x).GetHashCode() == Sin(x).GetHashCode());

@@ -1,4 +1,6 @@
-﻿namespace Symbolic.Utils
+﻿using System;
+
+namespace Symbolic.Utils
 {
     public static class Properties
     {
@@ -13,5 +15,18 @@
         }
 
         private static bool _useCaching = true;
+
+        public class WithoutCaching : IDisposable
+        {
+            public bool UseCacheAfterDisposing { get; set; }
+
+            public WithoutCaching()
+            {
+                UseCacheAfterDisposing = _useCaching;
+                _useCaching = false;
+            }
+
+            public void Dispose() => _useCaching = UseCacheAfterDisposing;
+        }
     }
 }
