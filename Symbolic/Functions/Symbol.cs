@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using Symbolic.Functions.Standart;
 using Symbolic.Utils;
@@ -49,6 +50,8 @@ namespace Symbolic.Functions
         }
 
         public override double GetValue(double variableValue) => variableValue;
+
+        public override double GetValue(Dictionary<Symbol, double> variableValues) => variableValues.ContainsKey(this) ? variableValues[this] : throw new Exception();   // TODO : Specify exception type.
 
         public override Constant Diff(Symbol variable) => this == variable ? 1 : 0;
 
@@ -127,7 +130,9 @@ namespace Symbolic.Functions
             else { return base.Raise(other); }
         }
 
-        public override Function ApplyTo(Function inner) => inner is Constant c ? c.Value : inner;
+        public override Function ApplyTo(Function inner) => inner;
+
+        public override Function ApplyTo(Dictionary<Symbol, Function> replacements) => replacements.ContainsKey(this) ? replacements[this] : this;
 
         public override bool Equals(Function? other) => other is Symbol s && (s.StrSymbol == StrSymbol || _isAny || s._isAny);
 
@@ -151,7 +156,7 @@ namespace Symbolic.Functions
 
         protected override HashCodeCombiner _addParamsHashCode(HashCodeCombiner combiner) => combiner.Add(StrSymbol);
 
-        public static bool IsAny(Function func) => func is Symbol s && s._isAny;
+        public static bool IsAny(Symbol s) => s._isAny;
 
         public static Symbol operator |(Symbol left, Symbol right) => (left is null || left._isAny) ? right : left;
     }

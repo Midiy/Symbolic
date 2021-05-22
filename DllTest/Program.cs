@@ -15,13 +15,29 @@ namespace DllTest
             Symbol x = Symbol("x");
             Symbol y = Symbol("y");
 
-            // Symbolic constants demonstration.
-            Function SinOfHalfPi = Sin(PI / 2);
-            Console.WriteLine($"{SinOfHalfPi} (expected to be sin(pi / 2))");
-            Console.WriteLine($"{SinOfHalfPi == Sin(x / 2).ApplyTo(PI)} (expected to be True)");
-            Console.WriteLine($"{SinOfHalfPi.GetValue(0)} (expected to be 1)");
-            Console.WriteLine($"{SinOfHalfPi.GetValue(1)} (expected to be 1)");
-            Console.WriteLine($"{E ^ 2} (expected to be e^2)");
+            // Substitution and symbolic constants demonstration.
+            Console.WriteLine($"{Sqrt(2) / 2} (expected to be sqrt(2) / 2)");
+            Function SinOfQuotient = Sin(x / y);
+            Function SinOfHalf = SinOfQuotient.ApplyTo(y, 2);
+            Function SinOfPartOfPi = SinOfQuotient.ApplyTo(x, PI);
+            Function SinOfHalfPi1 = SinOfHalf.ApplyTo(PI);
+            Function SinOfHalfPi2 = SinOfPartOfPi.ApplyTo(2);
+            Console.WriteLine($"{SinOfQuotient} (expected to be sin(x / y))");
+            Console.WriteLine($"{SinOfHalf} (expected to be sin(x / 2))");
+            Console.WriteLine($"{SinOfPartOfPi} (expected to be sin(pi / 2))");
+            Console.WriteLine($"{SinOfHalfPi1} (expected to be sin(pi / 2))");
+            Console.WriteLine($"{SinOfHalfPi1 == SinOfHalfPi2} (expected to be True)");
+            Console.WriteLine($"{ReferenceEquals(SinOfHalfPi1, SinOfHalfPi2)} (expected to be True)");
+            Console.WriteLine();
+
+
+            // Evaluation demonstration.
+            Console.WriteLine($"{(x / y).GetValue((x, 2), (y, 4))} (expected to be 0.5)");
+            Console.WriteLine($"{SinOfPartOfPi.GetValue(y, 4)} (expected to be {Math.Sin(Math.PI / 4)})");
+            Console.WriteLine($"{SinOfPartOfPi.GetValue(4)} (expected to be {Math.Sin(Math.PI / 4)})");
+            Console.WriteLine($"{SinOfQuotient.GetValue((x, Symbolic.Functions.Constant.PI), (y, 4))} (expected to be {Math.Sin(Math.PI / 4)})");
+            Console.WriteLine($"{E.GetValue()} (expected to be {Math.E})");
+            Console.WriteLine($"{Symbolic.Functions.Constant.E.GetValue()} (expected to be {Math.E})");
             Console.WriteLine();
 
             // Properties.WithoutCaching() usage demonstration.

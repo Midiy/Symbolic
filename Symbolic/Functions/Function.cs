@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using Symbolic.Utils;
@@ -25,6 +26,16 @@ namespace Symbolic.Functions
         }
 
         public virtual double GetValue(double variableValue) => _getValue(Inner.GetValue(variableValue));
+
+        public virtual double GetValue(Symbol variable, double value) => GetValue((variable, value));
+
+        public virtual double GetValue(params (Symbol variable, double value)[] variableValues)
+            => GetValue(new Dictionary<Symbol, double>(variableValues.Select(((Symbol key, double value) t) => new KeyValuePair<Symbol, double>(t.key, t.value))));
+
+        public virtual double GetValue(IEnumerable<(Symbol variable, double value)> variableValues)
+            => GetValue(new Dictionary<Symbol, double>(variableValues.Select(((Symbol key, double value) t) => new KeyValuePair<Symbol, double>(t.key, t.value))));
+
+        public virtual double GetValue(Dictionary<Symbol, double> variableValues) => _getValue(Inner.GetValue(variableValues));
 
         public virtual Function Diff(Symbol variable) => variable == Variable ? _diff(variable) * Inner.Diff(variable) : 0;
 
@@ -59,13 +70,22 @@ namespace Symbolic.Functions
 
         public virtual Function Raise(Function other) => other is Partial p ? new Partial(p.Parts.Select(((Function func, Constant leftBound, Constant rightBound) t) => (this.Raise(t.func), t.leftBound, t.rightBound)))
                                                                             : Quotient(this, other);
-
+        
         public virtual Function ApplyTo(Function inner) => inner switch
-        {
-            Constant c => GetValue(c),
-            Partial p => new Partial(p.Parts.Select(((Function func, Constant leftBound, Constant rightBound) t) => (this.ApplyTo(t.func), t.leftBound, t.rightBound))),
-            _ => _applyTo(Inner.ApplyTo(inner))
-        };
+            {
+                Partial p => new Partial(p.Parts.Select(((Function func, Constant leftBound, Constant rightBound) t) => (this.ApplyTo(t.func), t.leftBound, t.rightBound))),
+                _ => _applyTo(Inner.ApplyTo(inner))
+            };
+
+        public virtual Function ApplyTo(Symbol variable, Function inner) => ApplyTo((variable, inner));
+
+        public virtual Function ApplyTo(params (Symbol variable, Function inner)[] replacements)
+            => ApplyTo(new Dictionary<Symbol, Function>(replacements.Select(((Symbol key, Function value) t) => new KeyValuePair<Symbol, Function>(t.key, t.value))));
+
+        public virtual Function ApplyTo(IEnumerable<(Symbol variable, Function inner)> replacements)
+            => ApplyTo(new Dictionary<Symbol, Function>(replacements.Select(((Symbol key, Function value) t) => new KeyValuePair<Symbol, Function>(t.key, t.value))));
+
+        public virtual Function ApplyTo(Dictionary<Symbol, Function> replacements) => _applyTo(Inner.ApplyTo(replacements));
 
         public virtual bool Equals(Function? other) => other is not null && Inner == other.Inner && _equals(other);
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using Symbolic.Utils;
@@ -38,6 +39,14 @@ namespace Symbolic.Functions
             _prefixStringRepr = $"( {string.Join(" ", digits)} )";
         }
 
+        public override double GetValue(double _) => Value;
+
+        public override double GetValue(Dictionary<Symbol, double> _) => Value;
+
+        public override Function ApplyTo(Function _) => this;
+
+        public override Function ApplyTo(Dictionary<Symbol, Function> _) => this;
+
         public override bool Equals(Function? other) => other is Constant c && Value == c.Value;
 
         public int CompareTo(Constant? other) => Value.CompareTo(other?.Value);
@@ -46,9 +55,9 @@ namespace Symbolic.Functions
 
         public override string ToPrefixString() => _prefixStringRepr;
 
-        protected override double _getValue(double _) => Value;
+        protected override double _getValue(double variableValue) => GetValue(variableValue);
 
-        protected override Function _applyTo(Function _) => this;
+        protected override Function _applyTo(Function inner) => ApplyTo(inner);
 
         protected override bool _equals(Function? other) => Equals(other);
 

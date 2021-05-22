@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using Symbolic.Utils;
 
@@ -23,11 +24,15 @@ namespace Symbolic.Functions
 
         public override double GetValue(double _) => Value;
 
+        public override double GetValue(Dictionary<Symbol, double> variableValues) => Value;
+
         public override Constant Diff(Symbol _) => 0;
 
         public override Function Integrate(Symbol variable) => this * variable;
 
         public override Function ApplyTo(Function _) => this;
+
+        public override Function ApplyTo(Dictionary<Symbol, Function> replacements) => this;
 
         public override bool Equals(Function? other) => other is SymbolicConstant sc && StrSymbol == sc.StrSymbol && Value == sc.Value;
 

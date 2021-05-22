@@ -15,9 +15,9 @@ namespace Symbolic.Functions.Operators
 
         public override Function Diff(Symbol variable) => Left.Diff(variable) * Right + Left * Right.Diff(variable);
 
-        protected override double _getValue(double variableValue) => Left.GetValue(variableValue) * Right.GetValue(variableValue);
+        protected override double _getValue(double leftValue, double rightValue) => leftValue * rightValue;
 
-        protected override Function _applyTo(Function inner) => Left.ApplyTo(inner) * Right.ApplyTo(inner);
+        protected override Function _applyTo(Function left, Function right) => left * right;
 
         protected override Function _diff(Symbol variable) => Diff(variable);
 
