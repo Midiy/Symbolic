@@ -21,7 +21,7 @@ namespace Symbolic.Functions
 
         public double Value { get; init; }
 
-        private string _prefixStringRepr;
+        protected string _prefixStringRepr;
 
         public Constant(double value)
         {

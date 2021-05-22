@@ -17,6 +17,7 @@ namespace Symbolic.Utils
 
         private static ConcurrentDictionary<int, Function> _cache = new();
         private static ConcurrentDictionary<string, Symbol> _symbolCache = new();
+        private static ConcurrentDictionary<string, SymbolicConstant> _symbolicConstantCache = new();
 
         static FunctionFactory() => (E, PI) = (Functions.SymbolicConstant.E, Functions.SymbolicConstant.PI);
 
@@ -31,7 +32,7 @@ namespace Symbolic.Utils
             else if (inner is Exp || inner is Abs) { return inner; }
             else if (inner is Root r && r.Degree % 2 == 0) { return r; }
             else if (inner is Power pw && (pw.Exponent % 2 == 0 || (1 / pw.Exponent) % 2 == 0)) { return pw; }
-            else if (inner is Constant c) { return c >= 0 ? c : Constant(-c.Value); }
+            else if (inner is Constant c) { return c >= 0 ? c : -c; }
             else if (inner is Monomial m && (m.Exponent % 2 == 0)) { return m.Coefficient >= 0 ? m : Monomial(m.Inner, -m.Coefficient, m.Exponent); }
             else if (inner is Quotient q) { return Abs(q.Left) / Abs(q.Right); }
             else if (inner is Product p) { return Abs(p.Left) * Abs(p.Right); }
@@ -134,11 +135,17 @@ namespace Symbolic.Utils
 
         public static Function Power(Function inner, Constant exponent)
         {
-            if (exponent == 0) { return inner != 0 ? 1 : throw new ArithmeticException(); }
+            if (inner == 0 && exponent <= 0) { throw new ArithmeticException(); }
+            else if (exponent == 0) { return 1; }
             else if (exponent == 1) { return inner; }
+            else if (inner is SymbolicConstant) { return _functionFactory(inner, exponent, () => new Power(inner, exponent)); }
+            else if (inner is Constant c && exponent % 1 == 0) { return Math.Pow(c, exponent); }
             else if ((1 / exponent) % 1 == 0) { return Root(inner, 1 / exponent); }
-            else if (inner is not Functions.Symbol && inner is Monomial m && exponent % 1 == 0 && exponent > 0) { return Monomial(m.Inner, Math.Pow(m.Coefficient, exponent), m.Exponent * exponent); }
-            else if (inner is not Functions.Symbol && inner is Polynomial p && exponent % 1 == 0 && exponent > 0)
+            else if (inner is not Functions.Symbol && inner is Monomial m && exponent % 1 == 0 && exponent > 0)
+            {
+                return Monomial(m.Inner, Math.Pow(m.Coefficient, exponent), m.Exponent * exponent);
+            }
+            else if (inner is not Functions.Symbol && inner is not Functions.Constant && inner is Polynomial p && exponent % 1 == 0 && exponent > 0)
             {
                 Polynomial result = Polynomial(inner.Variable, new Constant[] { 1 });
                 for (int i = 0; i < exponent; i++) { result = (Polynomial)(result * inner); }
@@ -269,7 +276,10 @@ namespace Symbolic.Utils
 
         public static Function Exponentiation(Function @base, Function exponent)
         {
-            if (@base is Constant cBase && exponent is Constant cExponent) { return Math.Pow(cBase, cExponent); }
+            if (@base is Constant cBase && exponent is Constant cExponent && @base is not Functions.SymbolicConstant && exponent is not Functions.SymbolicConstant)
+            {
+                return Math.Pow(cBase, cExponent);
+            }
             else if (@base == Functions.Constant.E) { return Exp(exponent); }
             else if (exponent is Constant c) { return Power(@base, c); }
             else { return _functionFactory(@base, exponent, false, () => new Exponentiation(@base, exponent)); }
@@ -285,7 +295,8 @@ namespace Symbolic.Utils
 
         public static Function Negation(Function inner)
         {
-            if (inner is Constant c) { return -c.Value; }
+            if (inner is SymbolicConstant) { return _functionFactory(inner, () => new Negation(inner)); }
+            else if (inner is Constant c) { return -c.Value; }
             else if (inner is Negation n) { return n.Inner; }
             else if (inner is Sum s) { return (-s.Left) + (-s.Right); }
             else if (inner is Polynomial p) { return Polynomial(p.Inner, p.Coeffs.Select((Constant c) => -c), true); }
@@ -345,6 +356,13 @@ namespace Symbolic.Utils
             else if (right == 1) { return left; }
             else if (left == -1) { return -right; }
             else if (right == -1) { return -left; }
+            else if (right is Quotient q && q.Right == left) { return q.Left; }
+            else if (left is SymbolicConstant || right is SymbolicConstant) 
+            {
+                if (left is Constant cLeft && left is not Functions.SymbolicConstant && (1 / cLeft) % 1 == 0) { return right / (1 / cLeft); }
+                else if (right is Constant cRight && right is not Functions.SymbolicConstant && (1 / cRight) % 1 == 0) { return left / (1 / cRight); }
+                else { return _functionFactory(left, right, true, () => new Product(left, right)); }
+            }
             else if (left is Constant cLeft && right is Constant cRight) { return cLeft.Value * cRight.Value; }
             else if (left is Negation nLeft && right is Negation nRight) { return nLeft.Inner * nRight.Inner; }
             else if (left is Monomial mLeft && mLeft.Coefficient < 0 && right is Negation nRight1) { return (-mLeft) * nRight1.Inner; }
@@ -381,27 +399,30 @@ namespace Symbolic.Utils
             else if (right == 1) { return left; }
             else if (right == -1) { return -left; }
             else if (left == right) { return 1; }
-            else if (left is Constant cLeft && right is Constant cRight) { return cLeft.Value / cRight.Value; }
+            else if (left is Constant cLeft && left is not Functions.SymbolicConstant && (1 / cLeft) % 1 == 0 && left != 1) { return 1 / (cLeft * right); }
+            else if (right is Constant cRight && right is not Functions.SymbolicConstant && (1 / cRight) % 1 == 0) { return (1 / cRight) * left; }
+            else if (left is SymbolicConstant || right is SymbolicConstant) { return _functionFactory(left, right, false, () => new Quotient(left, right)); }
+            else if (left is Constant cLeft1 && right is Constant cRight1) { return cLeft1.Value / cRight1.Value; }
             else if (left is Negation nLeft && right is Negation nRight) { return nLeft.Inner / nRight.Inner; }
             else if (left is Monomial mLeft && mLeft.Coefficient < 0 && right is Negation nRight1) { return (-mLeft) / nRight1.Inner; }
             else if (left is Negation nLeft1 && right is Monomial mRight && mRight.Coefficient < 0) { return nLeft1.Inner / (-mRight); }
 
-            else if (left is Power pLeft1 && pLeft1.Inner is Symbol && right is Constant cRight1) { return Monomial(pLeft1.Inner, 1 / cRight1, pLeft1.Exponent); }
+            else if (left is Power pLeft2 && pLeft2.Inner is Symbol && right is Constant cRight2) { return Monomial(pLeft2.Inner, 1 / cRight2, pLeft2.Exponent); }
             else if (left is Symbol sLeft2 && right is Power pRight2 && pRight2.Inner == sLeft2) { return Power(sLeft2, 1 - pRight2.Exponent); }
-            else if (left is Power pLeft2 && right is Symbol sRight2 && pLeft2.Inner == sRight2) { return Power(sRight2, pLeft2.Exponent - 1); }
+            else if (left is Power pLeft3 && right is Symbol sRight3 && pLeft3.Inner == sRight3) { return Power(sRight3, pLeft3.Exponent - 1); }
 
-            else if (left is Monomial mLeft3 && right is Constant cRight3) { return Monomial(mLeft3.Inner, mLeft3.Coefficient / cRight3, mLeft3.Exponent); }
-            else if (left is Monomial mLeft4 && right is Symbol sRight4 && mLeft4.Inner == sRight4 && mLeft4.Exponent >= 1)
+            else if (left is Monomial mLeft4 && right is Constant cRight4) { return Monomial(mLeft4.Inner, mLeft4.Coefficient / cRight4, mLeft4.Exponent); }
+            else if (left is Monomial mLeft5 && right is Symbol sRight5 && mLeft5.Inner == sRight5 && mLeft5.Exponent >= 1)
             {
-                return Monomial(sRight4, mLeft4.Coefficient, mLeft4.Exponent - 1);
+                return Monomial(sRight5, mLeft5.Coefficient, mLeft5.Exponent - 1);
             }
 
-            else if (left is Monomial mLeft5 && right is Monomial mRight5 && mLeft5.Inner == mRight5.Inner && mLeft5.Exponent >= mRight5.Exponent)
+            else if (left is Monomial mLeft6 && right is Monomial mRight6 && mLeft6.Inner == mRight6.Inner && mLeft6.Exponent >= mRight6.Exponent)
             {
-                return Monomial(mLeft5.Inner, mLeft5.Coefficient / mRight5.Coefficient, mLeft5.Exponent - mRight5.Exponent);
+                return Monomial(mLeft6.Inner, mLeft6.Coefficient / mRight6.Coefficient, mLeft6.Exponent - mRight6.Exponent);
             }
 
-            else if (left is Polynomial pLeft6 && right is Constant cRight7) { return Polynomial(pLeft6.Inner, pLeft6.Coeffs.Select((Constant c) => c / cRight7), true); }
+            else if (left is Polynomial pLeft7 && right is Constant cRight7) { return Polynomial(pLeft7.Inner, pLeft7.Coeffs.Select((Constant c) => c / cRight7), true); }
 
             else if (left is Quotient qLeft && right is Quotient qRight) { return (qLeft.Left * qRight.Right) / (qLeft.Right * qRight.Left); }
             else if (left is Quotient qLeft1) { return qLeft1.Left / (qLeft1.Right * right); }
@@ -433,13 +454,14 @@ namespace Symbolic.Utils
             else if (right is Negation nRight && nRight.Inner == left) { return 0; }
             else if (left == 0) { return right; }
             else if (right == 0) { return left; }
+            else if (left is SymbolicConstant || right is SymbolicConstant) { return _functionFactory(left, right, true, () => new Sum(left, right)); }
             else if (left is Constant cLeft && right is Constant cRight) { return cLeft.Value + cRight.Value; }
             else if (left is Monomial mLeft && right is Monomial mRight && mLeft.Inner == mRight.Inner)
             {
                 if (mLeft.Exponent == mRight.Exponent) { return Monomial(mLeft.Inner, mLeft.Coefficient + mRight.Coefficient, mLeft.Exponent); }
                 else { return Polynomial(mLeft, mRight); }
             }
-            
+
             else if (left is Polynomial pLeft1 && right is Polynomial pRight1 && left.Inner == right.Inner) { return _polySum(pLeft1, pRight1); }
             else if (left is Polynomial pLeft2 && right is Power pwRight2 && left.Inner == right.Inner) { return _polySum(pLeft2, (Polynomial)pwRight2); }
             else if (left is Power pwLeft3 && right is Polynomial pRight3 && left.Inner == right.Inner) { return _polySum((Polynomial)pwLeft3, pRight3); }
@@ -455,9 +477,8 @@ namespace Symbolic.Utils
         {
             if (Properties.UseCaching)
             {
-                Symbol result = _symbolCache.GetOrAdd(symbol, (_) => new Symbol(symbol));
-                if (result is SymbolicConstant) { throw new Exception(); }   // TODO : Specify exception type.
-                else { return result; }
+                if (_symbolicConstantCache.ContainsKey(symbol)) { throw new Exception(); }   // TODO : Specify exception type.
+                else { return _symbolCache.GetOrAdd(symbol, (_) => new Symbol(symbol)); }
             }
             else { return new Symbol(symbol); }
         }
@@ -466,9 +487,8 @@ namespace Symbolic.Utils
         {
             if (Properties.UseCaching)
             {
-                Symbol result = _symbolCache.GetOrAdd(symbol, (_) => new SymbolicConstant(symbol, value));
-                if (result is not SymbolicConstant sc) { throw new Exception(); }   // TODO : Specify exception type.
-                else { return sc; }
+                if (_symbolCache.ContainsKey(symbol)) { throw new Exception(); }   // TODO : Specify exception type.
+                else { return _symbolicConstantCache.GetOrAdd(symbol, (_) => new SymbolicConstant(symbol, value)); }
             }
             else { return new SymbolicConstant(symbol, value); }
         }

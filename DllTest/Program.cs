@@ -24,7 +24,7 @@ namespace DllTest
             Function SinOfHalfPi2 = SinOfPartOfPi.ApplyTo(2);
             Console.WriteLine($"{SinOfQuotient} (expected to be sin(x / y))");
             Console.WriteLine($"{SinOfHalf} (expected to be sin(x / 2))");
-            Console.WriteLine($"{SinOfPartOfPi} (expected to be sin(pi / 2))");
+            Console.WriteLine($"{SinOfPartOfPi} (expected to be sin(pi / y))");
             Console.WriteLine($"{SinOfHalfPi1} (expected to be sin(pi / 2))");
             Console.WriteLine($"{SinOfHalfPi1 == SinOfHalfPi2} (expected to be True)");
             Console.WriteLine($"{ReferenceEquals(SinOfHalfPi1, SinOfHalfPi2)} (expected to be True)");
