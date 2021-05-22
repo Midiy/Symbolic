@@ -37,51 +37,6 @@ namespace Symbolic.Functions
                                 };
         }
 
-        public override Monomial Negate() => Monomial(Variable, -Coefficient, Exponent);
-
-        public override Function Add(Function other)
-        {
-            if (other != 0 && Variable == other.Variable && other is Monomial m)
-            {
-                if (Exponent == m.Exponent) { return Monomial(Variable | m.Variable, Coefficient + m.Coefficient, Exponent); }
-                else { return Polynomial(this, m); }
-            }
-            else { return base.Add(other); }
-        }
-
-        public override Function Subtract(Function other)
-        {
-            if (other != 0 && Variable == other.Variable && other is Monomial m)
-            {
-                if (Exponent == m.Exponent) { return Monomial(Variable | m.Variable, Coefficient - m.Coefficient, Exponent); }
-                else { return Polynomial(this, m.Negate()); }
-            }
-            else { return base.Subtract(other); }
-        }
-
-        public override Function Multiply(Function other)
-        {
-            if (other != 0 && Variable == other.Variable && other is Monomial m) { return Monomial(Variable | m.Variable, Coefficient * m.Coefficient, Exponent + m.Exponent); }
-            return base.Multiply(other);
-        }
-
-        public override Function Divide(Function other)
-        {
-            if (other is Constant c) 
-            {
-                if (c == 0) { throw new DivideByZeroException(); }
-                else if (c == 1) { return this; }
-                else { return Monomial(Variable, Coefficient / c, Exponent); }
-            }
-            else { return base.Divide(other); }
-        }
-
-        public override Function Raise(Function other)
-        {
-            if (other is Constant c && c % 1 == 0 && c > 0) { return Monomial(Variable, Coefficient, Exponent * c); }
-            else { return base.Raise(other); }
-        }
-
         public override string ToPrefixString()
         {
             if (Coefficient == 0) { return "( 0 )"; }

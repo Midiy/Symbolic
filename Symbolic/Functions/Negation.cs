@@ -17,20 +17,6 @@ namespace Symbolic.Functions
             else { return this * variable; }
         }
 
-        public override Function Negate() => Inner;
-
-        public override Function Multiply(Function other)
-        {
-            if (other is Negation n) { return Inner.Multiply(n.Inner); }
-            else { return base.Multiply(other); }
-        }
-
-        public override Function Divide(Function other)
-        {
-            if (other is Negation n) { return Inner.Divide(n.Inner); }
-            else { return base.Divide(other); }
-        }
-
         public override string ToPrefixString() => $"* ( -1 ) {Inner.ToPrefixString()}";   // To avoid ambiguity with unary and binary minus.
 
         protected override double _getValue(double variableValue) => -variableValue;

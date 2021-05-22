@@ -38,51 +38,6 @@ namespace Symbolic.Functions
             _prefixStringRepr = $"( {string.Join(" ", digits)} )";
         }
 
-        public override Constant Negate() => -Value;
-
-        public override Function Add(Function other)
-        {
-            if (Value == 0) { return other; }
-            else if (other is Constant c) { return Value + c.Value; }
-            else { return base.Add(other); }
-        }
-
-        public override Function Subtract(Function other)
-        {
-            if (Value == 0) { return other.Negate(); }
-            else if (other is Constant c) { return Value - c.Value; }
-            else { return base.Subtract(other);
-}
-        }
-
-        public override Function Multiply(Function other)
-        {
-            if (Value == 0) { return 0; }
-            else if (Value == 1) { return other; }
-            else if (Value == -1) { return other.Negate(); }
-            else if (other is Constant c) { return Value * c.Value; }
-            else { return base.Multiply(other); }
-        }
-
-        public override Function Divide(Function other)
-        {
-            if (other is Constant c)
-            {
-                if (c == 0) { throw new DivideByZeroException(); }
-                else { return Value / c.Value; }
-            }
-            else if (Value == 0) { return 0; }
-            else { return base.Divide(other); }
-        }
-
-        public override Function Raise(Function other)
-        {
-            if (Value == 0) { return other == 0 ? throw new ArithmeticException() : 0; }
-            else if (Value == 1) { return 1; }
-            else if (other is Constant c) { return Math.Pow(this, c); }
-            else { return base.Multiply(other); }
-        }
-
         public override bool Equals(Function? other) => other is Constant c && Value == c.Value;
 
         public int CompareTo(Constant? other) => Value.CompareTo(other?.Value);
@@ -122,19 +77,7 @@ namespace Symbolic.Functions
 
         public static implicit operator double(Constant c) => c.Value;
 
-        public static implicit operator Constant(double d) => d switch
-                                                              {
-                                                                  // Handling trivial and most common cases to reduce number of memory allocations and objects in heap.
-                                                                  // (Not quite actual with caching by Symbols.Utils.FunctionFactory.)
-                                                                  0 => Zero,
-                                                                  1 => One,
-                                                                  -1 => MinusOne,
-                                                                  Math.E => E,
-                                                                  Math.PI => PI,
-                                                                  double.PositiveInfinity => PositiveInfinity,
-                                                                  double.NegativeInfinity => NegativeInfinity,
-                                                                  _ => Constant(d)
-                                                              };
+        public static implicit operator Constant(double d) => Constant(d);
         #endregion
     }
 }

@@ -12,10 +12,6 @@ namespace Symbolic.Functions.Operators
             PriorityWhenOuter = Priorities.Division;
         }
 
-        public override Function Multiply(Function other) => other == Right ? Left : base.Multiply(other);
-
-        public override Function Divide(Function other) => other is Quotient q ? (Left * q.Right) / (Right * q.Left) : Left / (Right * other);
-
         protected override double _getValue(double variableValue) => Left.GetValue(variableValue) / Right.GetValue(variableValue);
 
         protected override Function _applyTo(Function inner) => Left.ApplyTo(inner) / Right.ApplyTo(inner);

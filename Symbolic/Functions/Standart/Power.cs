@@ -36,30 +36,11 @@ namespace Symbolic.Functions.Standart
             else { return base.Add(other); }
         }
 
-        public override Function Multiply(Function other)
-        {
-            if (Variable == other.Variable)
-            {
-                if (other is Constant c)
-                {
-                    if (c == 0) { return 0; }
-                    else if (c == 1) { return this; }
-                    else if (c == -1) { return this.Negate(); }
-                    else { return Monomial(Variable, c, Exponent); }
-                }
-                else if (other is Symbol) { return Power(Variable, Exponent + 1); }
-                else if (other is Power pw) { return Power(Variable, Exponent + pw.Exponent); }
-                else if (other is Monomial m) { return m.Multiply(this); }
-                else if (other is Polynomial p) { return p.Multiply(this); }
-            }
-            return base.Multiply(other);
-        }
-
         protected override double _getValue(double variableValue) => Math.Pow(variableValue, Exponent);
 
         protected override Function _applyTo(Function inner) => Power(inner, Exponent);
 
-        protected override bool _equals(Function other) => other is Power p && Exponent == p.Exponent;
+        protected override bool _equals(Function other) => (other is Power p && Exponent == p.Exponent) || (other is Monomial && other == (Monomial)this);
 
         protected override Function _diff(Symbol _) => Exponent * (Inner ^ (Exponent - 1));
 

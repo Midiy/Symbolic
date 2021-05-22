@@ -11,20 +11,6 @@ namespace Symbolic.Functions.Operators
             PriorityWhenOuter = Priorities.Addition;
         }
 
-        public override Function Subtract(Function other)
-        {
-            if (other == Left) { return Right; }
-            else if (other == Right) { return Left; }
-            else if (other is Sum s)
-            {
-                if (s.Left == Left) { return Right.Subtract(s.Right); }
-                else if (s.Left == Right) { return Left.Subtract(s.Right); }
-                else if (s.Right == Left) { return Right.Subtract(s.Left); }
-                else if (s.Right == Right) { return Left.Subtract(s.Left); }
-            }
-            return base.Subtract(other);
-        }
-
         protected override double _getValue(double variableValue) => Left.GetValue(variableValue) + Right.GetValue(variableValue);
 
         protected override Function _applyTo(Function inner) => Left.ApplyTo(inner) + Right.ApplyTo(inner);

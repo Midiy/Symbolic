@@ -17,8 +17,6 @@ namespace Symbolic.Functions.Standart
             PriorityWhenOuter = Priorities.OuterStandartFunctions;
         }
 
-        public override Function Raise(Function other) => (other is Constant c && c % 2 == 0) ? Power(Variable, c) : base.Raise(other);
-
         public override string ToPrefixString() => $"abs {Inner.ToPrefixString()}";
             
         protected override double _getValue(double variableValue) => Math.Abs(variableValue);

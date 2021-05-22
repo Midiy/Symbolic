@@ -15,20 +15,6 @@ namespace Symbolic.Functions.Operators
 
         public override Function Diff(Symbol variable) => Left.Diff(variable) * Right + Left * Right.Diff(variable);
 
-        public override Function Divide(Function other)
-        {
-            if (other == Left) { return Right; }
-            else if (other == Right) { return Left; }
-            else if (other is Product p)
-            {
-                if (p.Left == Left) { return Right.Divide(p.Right); }
-                else if (p.Left == Right) { return Left.Divide(p.Right); }
-                else if (p.Right == Left) { return Right.Divide(p.Left); }
-                else if (p.Right == Right) { return Left.Divide(Left); }
-            }
-            return base.Divide(other);
-        }
-
         protected override double _getValue(double variableValue) => Left.GetValue(variableValue) * Right.GetValue(variableValue);
 
         protected override Function _applyTo(Function inner) => Left.ApplyTo(inner) * Right.ApplyTo(inner);

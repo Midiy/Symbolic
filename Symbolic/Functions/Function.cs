@@ -46,66 +46,26 @@ namespace Symbolic.Functions
 
         public virtual Function Negate() => Negation(this);
 
-        public virtual Function Add(Function other)
-        {
-            if (this == -other) { return 0; }
-            else if (other == 0) { return this; }
-            else if (other is Partial p) 
-            { 
-                return new Partial(p.Parts.Select(((Function func, Constant leftBound, Constant rightBound) t) => (this.Add(t.func), t.leftBound, t.rightBound)));
-            }
-            else { return Sum(this, other); }
-        }
+        public virtual Function Add(Function other) => other is Partial p ? new Partial(p.Parts.Select(((Function func, Constant leftBound, Constant rightBound) t) => (this.Add(t.func), t.leftBound, t.rightBound)))
+                                                                          : Sum(this, other);
 
-        public virtual Function Subtract(Function other)
-        {
-            if (this == other) { return 0; }
-            else if (other == 0) { return this; }
-            else { return this.Add(other.Negate()); }
-        }
+        public virtual Function Subtract(Function other) => this.Add(-other);
 
-        public virtual Function Multiply(Function other)
-        {
-            if (other == -1) { return this.Negate(); }
-            else if (other == 0) { return 0; }
-            else if (other == 1) { return this; }
-            else if (other is Partial p)
-            {
-                return new Partial(p.Parts.Select(((Function func, Constant leftBound, Constant rightBound) t) => (this.Multiply(t.func), t.leftBound, t.rightBound)));
-            }
-            else { return Product(this, other); }
-        }
+        public virtual Function Multiply(Function other) => other is Partial p ? new Partial(p.Parts.Select(((Function func, Constant leftBound, Constant rightBound) t) => (this.Multiply(t.func), t.leftBound, t.rightBound)))
+                                                                               : Product(this, other);
 
-        public virtual Function Divide(Function other)
-        {
-            if (this == other) { return 1; }
-            else if (other == -1) { return this.Negate(); }
-            else if (other == 1) { return this; }
-            else if (other is Partial p)
-            {
-                return new Partial(p.Parts.Select(((Function func, Constant leftBound, Constant rightBound) t) => (this.Divide(t.func), t.leftBound, t.rightBound)));
-            }
-            else { return Quotient(this, other); }
-        }
+        public virtual Function Divide(Function other) => other is Partial p ? new Partial(p.Parts.Select(((Function func, Constant leftBound, Constant rightBound) t) => (this.Divide(t.func), t.leftBound, t.rightBound)))
+                                                                             : Quotient(this, other);
 
-        public virtual Function Raise(Function other)
-        {
-            if (other == 0 && this == 0) { throw new ArithmeticException(); }
-            else if (other == 1) { return this; }
-            else if (other is Constant c) { return Power(this, c); }
-            else if (other is Partial p)
-            {
-                return new Partial(p.Parts.Select(((Function func, Constant leftBound, Constant rightBound) t) => (this.Raise(t.func), t.leftBound, t.rightBound)));
-            }
-            return Exponentiation(this, other);
-        }
+        public virtual Function Raise(Function other) => other is Partial p ? new Partial(p.Parts.Select(((Function func, Constant leftBound, Constant rightBound) t) => (this.Raise(t.func), t.leftBound, t.rightBound)))
+                                                                            : Quotient(this, other);
 
         public virtual Function ApplyTo(Function inner) => inner switch
-                                                           {
-                                                               Constant c => GetValue(c),
-                                                               Partial p => new Partial(p.Parts.Select(((Function func, Constant leftBound, Constant rightBound) t) => (this.ApplyTo(t.func), t.leftBound, t.rightBound))),
-                                                               _ => _applyTo(Inner.ApplyTo(inner))
-                                                           };
+        {
+            Constant c => GetValue(c),
+            Partial p => new Partial(p.Parts.Select(((Function func, Constant leftBound, Constant rightBound) t) => (this.ApplyTo(t.func), t.leftBound, t.rightBound))),
+            _ => _applyTo(Inner.ApplyTo(inner))
+        };
 
         public virtual bool Equals(Function? other) => other is not null && Inner == other.Inner && _equals(other);
 
