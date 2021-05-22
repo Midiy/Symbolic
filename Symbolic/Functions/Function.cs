@@ -55,6 +55,12 @@ namespace Symbolic.Functions
             return antideriv.GetValue(upperBound) - antideriv.GetValue(lowerBound);
         }
 
+        public virtual Function Integrate(Symbol variable, Function lowerBound, Function upperBound)
+        {
+            Function antideriv = Integrate(variable);
+            return antideriv.ApplyTo(variable, upperBound) - antideriv.ApplyTo(variable, lowerBound);
+        }
+
         public virtual Function Negate() => Negation(this);
 
         public virtual Function Add(Function other) => other is Partial p ? new Partial(p.Parts.Select(((Function func, Constant leftBound, Constant rightBound) t) => (this.Add(t.func), t.leftBound, t.rightBound)))
