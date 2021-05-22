@@ -51,7 +51,7 @@ namespace Symbolic.Functions
 
         protected override Function _applyTo(Function inner) => Coefficient * (inner ^ Exponent);
 
-        protected override bool _equals(Function? other) => other is Monomial m && Coefficient == m.Coefficient && Exponent == m.Exponent;
+        protected override bool _equals(Function? other) => (other is Monomial m && Coefficient == m.Coefficient && Exponent == m.Exponent) || (other is Power p && this == (Monomial)p);
 
         protected override string _toString()
         {
@@ -82,7 +82,7 @@ namespace Symbolic.Functions
 
         public static explicit operator Monomial(Power power)
         {
-            if (power.Exponent < 0 && power.Exponent % 1 != 0) { throw new InvalidCastException(); }
+            if (power.Exponent < 0 || power.Exponent % 1 != 0) { throw new InvalidCastException(); }
             return Monomial(power.Variable, 1, power.Exponent);
         }
     }

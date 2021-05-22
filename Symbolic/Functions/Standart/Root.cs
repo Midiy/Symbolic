@@ -4,7 +4,7 @@ namespace Symbolic.Functions.Standart
 {
     public class Root : Power
     {
-        public Constant Degree;
+        public Constant Degree { get; init; }
 
         public Root(Function inner, Constant degree) : base(inner, 1 / degree) => Degree = degree;
 
