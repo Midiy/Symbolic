@@ -11,8 +11,14 @@ namespace Symbolic.Utils
 {
     public static class FunctionFactory
     {
+        // Field initialization cannot be used here because of the initialization sequence: the cache may not have been created yet when the field is initialized.
+        public static readonly SymbolicConstant E;
+        public static readonly SymbolicConstant PI;
+
         private static ConcurrentDictionary<int, Function> _cache = new();
         private static ConcurrentDictionary<string, Symbol> _symbolCache = new();
+
+        static FunctionFactory() => (E, PI) = (Functions.SymbolicConstant.E, Functions.SymbolicConstant.PI);
 
         #region Standart functions
         public static Abs Abs(string variable) => Abs(Symbol(variable));
@@ -445,7 +451,27 @@ namespace Symbolic.Utils
         }
 
 
-        public static Symbol Symbol(string symbol) => Properties.UseCaching ? _symbolCache.GetOrAdd(symbol, (_) => new Symbol(symbol)) : new Symbol(symbol);
+        public static Symbol Symbol(string symbol)
+        {
+            if (Properties.UseCaching)
+            {
+                Symbol result = _symbolCache.GetOrAdd(symbol, (_) => new Symbol(symbol));
+                if (result is SymbolicConstant) { throw new Exception(); }   // TODO : Specify exception type.
+                else { return result; }
+            }
+            else { return new Symbol(symbol); }
+        }
+
+        public static SymbolicConstant SymbolicConstant(string symbol, Constant value)
+        {
+            if (Properties.UseCaching)
+            {
+                Symbol result = _symbolCache.GetOrAdd(symbol, (_) => new SymbolicConstant(symbol, value));
+                if (result is not SymbolicConstant sc) { throw new Exception(); }   // TODO : Specify exception type.
+                else { return sc; }
+            }
+            else { return new SymbolicConstant(symbol, value); }
+        }
         #endregion
 
         public static void ClearCache() => _cache.Clear();

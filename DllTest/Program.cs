@@ -15,6 +15,15 @@ namespace DllTest
             Symbol x = Symbol("x");
             Symbol y = Symbol("y");
 
+            // Symbolic constants demonstration.
+            Function SinOfHalfPi = Sin(PI / 2);
+            Console.WriteLine($"{SinOfHalfPi} (expected to be sin(pi / 2))");
+            Console.WriteLine($"{SinOfHalfPi == Sin(x / 2).ApplyTo(PI)} (expected to be True)");
+            Console.WriteLine($"{SinOfHalfPi.GetValue(0)} (expected to be 1)");
+            Console.WriteLine($"{SinOfHalfPi.GetValue(1)} (expected to be 1)");
+            Console.WriteLine($"{E ^ 2} (expected to be e^2)");
+            Console.WriteLine();
+
             // Properties.WithoutCaching() usage demonstration.
             Function sin1, sin2, sin3;
             sin1 = Sin(x);

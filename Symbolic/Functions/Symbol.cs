@@ -131,7 +131,7 @@ namespace Symbolic.Functions
 
         public override bool Equals(Function? other) => other is Symbol s && (s.StrSymbol == StrSymbol || _isAny || s._isAny);
 
-        public bool StrictEquals(Symbol other) => other.StrSymbol == StrSymbol;
+        public virtual bool StrictEquals(Symbol other) => other.StrSymbol == StrSymbol;
 
         public override string ToPrefixString() => StrSymbol;
 

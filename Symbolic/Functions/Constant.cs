@@ -10,13 +10,13 @@ namespace Symbolic.Functions
     public class Constant : Monomial, IComparable<Constant>, IComparable<double>
     {
         // Shouldn't use implicit conversion operator here to avoid circular references.
-        public static readonly Constant E                = Constant(Math.E);
-        public static readonly Constant PI               = Constant(Math.PI);
-        public static readonly Constant PositiveInfinity = Constant(double.PositiveInfinity);
-        public static readonly Constant NegativeInfinity = Constant(double.NegativeInfinity);
-        public static readonly Constant Zero             = Constant(0);
-        public static readonly Constant One              = Constant(1);
-        public static readonly Constant MinusOne         = Constant(-1);
+        public static readonly Constant E                = Math.E;
+        public static readonly Constant PI               = Math.PI;
+        public static readonly Constant PositiveInfinity = double.PositiveInfinity;
+        public static readonly Constant NegativeInfinity = double.NegativeInfinity;
+        public static readonly Constant Zero             = 0;
+        public static readonly Constant One              = 1;
+        public static readonly Constant MinusOne         = -1;
 
         public double Value { get; init; }
 
