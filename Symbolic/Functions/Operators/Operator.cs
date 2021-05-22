@@ -10,7 +10,7 @@ namespace Symbolic.Functions.Operators
         protected bool _isCommutative { get; init; }
         protected string _stringRepr { get; init; }
 
-        public Operator(Function left, Function right, bool isCommutative, string prefixRepr) : base(left.Variable == right.Variable ? left.Variable : Symbol.ANY)
+        public Operator(Function left, Function right, bool isCommutative, string prefixRepr) : base(left.Variable.StrictEquals(right.Variable) ? left.Variable : Symbol.ANY)
         {
             Left = left;
             Right = right;
